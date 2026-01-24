@@ -45,17 +45,19 @@ app.use("/api/notes", notes_routes);
 
 // C. REFINED PRODUCTION PATHING
 if (process.env.NODE_ENV === "production") {
-  // Ensure the path correctly points to your built frontend
-  const frontendPath = path.join(__dirname, "frontend", "dist");
+  // Use ".." to step OUT of the backend folder and into the frontend folder
+  const frontendPath = path.join(__dirname, "..", "frontend", "dist");
+  
   app.use(express.static(frontendPath));
 
   app.get("*", (req, res) => {
-    // Only redirect to index.html if the request isn't for an API route
     if (!req.path.startsWith("/api")) {
+      // Use path.resolve to ensure we have an absolute path for the file system
       res.sendFile(path.resolve(frontendPath, "index.html"));
     }
   });
 }
+
 // 6. Database & Server Start
 connectDB().then(() => {
   app.listen(PORT, () => {
