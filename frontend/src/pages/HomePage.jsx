@@ -1,101 +1,74 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import api from "../lib/axios";
+import { useAuth } from "../context/AuthContext"; // Swapped from useAuth0
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
 import Navbar from "../components/Navbar";
-import RateLimitedUI from "../components/RateLimitedUI";
 import NoteCard from "../components/NoteCard";
 import NotesNotFound from "../components/NotesNotFound";
-import { Loader2Icon, SparklesIcon } from "lucide-react";
 
 const HomePage = () => {
-  const [isRateLimited, setIsRateLimited] = useState(false);
+  // Use your custom auth context and the pre-configured axios 'api' instance
+  const { user, api } = useAuth();
+
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // We don't need to check !user here because ProtectedRoute
+    // ensures only logged-in users reach this component.
     const fetchNotes = async () => {
       try {
         const res = await api.get("/notes");
         setNotes(res.data);
-        setIsRateLimited(false);
       } catch (error) {
-        if (error.response?.status === 429) {
-          setIsRateLimited(true);
-        } else {
-          toast.error("Failed to sync with Mind Palace");
-        }
+        toast.error("Mind Palace sync failed");
+        console.error("Fetch Error:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchNotes();
-  }, []);
+  }, [api]); // Re-run if the api instance changes
 
   return (
     <div className="min-h-screen pb-20">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 mt-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-white flex items-center gap-2">
-              <SparklesIcon className="size-6 text-emerald-400" />
-              Your Palace
-            </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              {notes.length} thoughts archived in your collection
-            </p>
-          </div>
+        <div className="mb-10">
+          <h1 className="text-3xl font-black tracking-tight">
+            Your Collection
+          </h1>
+          <p className="text-slate-400 text-sm font-light">
+            {notes.length} {notes.length === 1 ? "thought" : "thoughts"}{" "}
+            archived for {user?.displayName}
+          </p>
         </div>
 
-        {isRateLimited && <RateLimitedUI />}
-
-        {/* Loading State: Skeleton Grid */}
-        {loading && (
+        {loading ? (
+          // SKELETON LOADING STATE
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-48 w-full bg-white/5 rounded-3xl animate-pulse border border-white/5"
+                className="h-48 bg-white/5 rounded-3xl animate-pulse border border-white/5"
               />
             ))}
           </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && notes.length === 0 && !isRateLimited && (
+        ) : notes.length === 0 ? (
+          <NotesNotFound />
+        ) : (
+          // THE GRID
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-20"
-          >
-            <NotesNotFound />
-          </motion.div>
-        )}
-
-        {/* Notes Grid with Staggered Animation */}
-        {!loading && notes.length > 0 && !isRateLimited && (
-          <motion.div
-            layout
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            <AnimatePresence>
-              {notes.map((note, index) => (
-                <motion.div
-                  key={note._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <NoteCard note={note} setNotes={setNotes} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {notes.map((note) => (
+              <NoteCard key={note._id} note={note} setNotes={setNotes} />
+            ))}
           </motion.div>
         )}
       </main>

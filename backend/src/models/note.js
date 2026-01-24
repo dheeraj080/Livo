@@ -1,24 +1,29 @@
 import mongoose from "mongoose";
 
 const note_schema = new mongoose.Schema({
+    // THE AUTH FIELD (Updated for custom OAuth)
+    authorId: {
+        type: mongoose.Schema.Types.ObjectId, // Connects to the User's MongoDB ID
+        ref: "User",                          // Links to your User model
+        required: true,
+        index: true, 
+    },
     title: {
         type: String,
         required: true,
+        trim: true, // Prevents accidental empty spaces at start/end
     },
     content: {
         type: String,
-        // Changed required to false so you can have a "tasks only" note
         required: false, 
     },
-    // Changed "task" to "todos" to match your frontend state
     todos: [
         {
-            id: { type: Number }, // Matches the Date.now() we used in React
-            text: { type: String },
+            id: { type: Number }, 
+            text: { type: String, trim: true },
             completed: { type: Boolean, default: false }
         }
     ],
-    // Keep this if you want a global "completed" status for the whole note
     completed: {
         type: Boolean,
         default: false
