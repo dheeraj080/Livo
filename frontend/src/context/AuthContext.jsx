@@ -3,9 +3,12 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
-// Create an axios instance that always sends cookies
+// 1. Define the Base URL correctly
+const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+
+// 2. Create the axios instance without syntax errors
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5001/api",
+  baseURL: BACKEND_URL,
   withCredentials: true,
 });
 
@@ -14,10 +17,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in via cookie
     const checkUser = async () => {
       try {
-        const res = await api.get("/notes/me"); // We'll create this route next
+        const res = await api.get("/notes/me");
         setUser(res.data);
       } catch (err) {
         setUser(null);
@@ -29,15 +31,15 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = () => {
-    // Redirect the entire window to the backend Google route
-    window.location.href = "http://localhost:5001/api/notes/google";
+    // 3. Fix the hardcoded redirect to use the dynamic URL
+    console.log("Redirecting to:", `${BACKEND_URL}/notes/google`);
+    window.location.href = `${BACKEND_URL}/notes/google`;
   };
 
   const logout = async () => {
     try {
       await api.post("/notes/logout");
       setUser(null);
-      // Optional: Force a redirect to the home/landing page
       window.location.href = "/";
     } catch (err) {
       console.error("Logout failed", err);
