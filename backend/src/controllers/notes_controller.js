@@ -24,34 +24,46 @@ export async function get_note_by_id(req, res) {
 
 export async function create_note(req, res) {
     try {
-        const { title, content } = req.body;
-        const note = new Note({ title, content });
+        // 1. Destructure 'todos' from the request body
+        const { title, content, todos } = req.body;
+        
+        // 2. Pass 'todos' to the new Note instance
+        const note = new Note({ 
+            title, 
+            content, 
+            todos: todos || [] // Default to empty array if not provided
+        });
 
         const saved_note = await note.save();
-        res.status(201).json({ saved_note });
+        res.status(201).json(saved_note); // Removed the extra object nesting {saved_note}
     } catch (error) {
         console.error("Error in create_note controller ", error);
         res.status(500).json({ message: "Internal server error" });
     }
-};
+}
 
 export async function update_note(req, res) {
     try {
-        const { title, content } = req.body;
+        // 1. Destructure 'todos' here as well
+        const { title, content, todos } = req.body;
+        
         const updated_note = await Note.findByIdAndUpdate(
             req.params.id,
-            { title, content },
-            { new: true, }
-        )
+            // 2. Include todos in the update object
+            { title, content, todos },
+            { new: true, runValidators: true }
+        );
 
-        if (!updated_note) return res.status(404).json({ message: "Id not found" })
+        if (!updated_note) return res.status(404).json({ message: "Id not found" });
 
         res.status(200).json(updated_note);
     } catch (error) {
         console.error("Error in update_note controller", error);
         res.status(500).json({ message: "Internal server error" });
     }
-};
+}
+
+
 
 export async function delete_note(req, res) {
     try {
