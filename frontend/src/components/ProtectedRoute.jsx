@@ -1,17 +1,13 @@
-import { Navigate } from "react-router";
+import { Navigate, Outlet } from "react-router";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
-  if (loading) return null; // Or a nice minimalist loading spinner
+  if (loading) return null; // Or a spinner
 
-  if (!user) {
-    // If not logged in, send them to the landing/login page
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
+  // If user exists, render the "Outlet" (the child routes), else go home
+  return user ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default ProtectedRoute;

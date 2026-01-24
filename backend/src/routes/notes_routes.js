@@ -22,31 +22,30 @@ router.get('/google/callback',
   (req, res) => {
     const token = signToken(req.user._id); 
     
+    // Cookie settings for Production (Secure & Cross-Site)
     res.cookie('token', token, { 
       httpOnly: true, 
-      secure: true, 
-      sameSite: 'none', 
+      secure: true,      // Required for sameSite: 'none'
+      sameSite: 'none',  // Required for cross-domain cookies
       maxAge: 7 * 24 * 60 * 60 * 1000 
     });
 
-    res.redirect(process.env.FRONTEND_URL || "http://localhost:5173"); 
+    const targetUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    console.log("Redirecting user to:", targetUrl); // Check Render logs for this!
+    res.redirect(targetUrl); 
   }
 );
 
 // --- PROTECTED ROUTES ---
 router.use(protect);
-router.post("/", create_note);
 
-// 1. SPECIFIC ROUTES FIRST
 router.get("/me", (req, res) => {
-    // You can define it inline here or import get_me from your controller
     res.status(200).json(req.user); 
 });
 
-// 2. GENERAL ROUTES AFTER
 router.get("/", get_all_notes);
-router.get("/:id", get_note_by_id); // Now 'me' won't trigger this!
-router.post("/", create_note);
+router.get("/:id", get_note_by_id);
+router.post("/", create_note); // Removed the duplicate one from before
 router.put("/:id", update_note);
 router.delete("/:id", delete_note);
 

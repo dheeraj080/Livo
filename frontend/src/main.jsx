@@ -5,15 +5,17 @@ import App from "./App.jsx";
 import { BrowserRouter } from "react-router";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx"; // [1] Import your ThemeProvider
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    {/* 1. Wrap with BrowserRouter for routing */}
     <BrowserRouter>
-      {/* 2. Wrap with AuthProvider for user state */}
       <AuthProvider>
-        <App />
-        <Toaster position="bottom-right" />
+        {/* [2] Wrap App so useTheme() works inside Navbar and Detail pages */}
+        <ThemeProvider>
+          <App />
+          <Toaster position="bottom-right" />
+        </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
