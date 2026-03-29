@@ -36,4 +36,4 @@ graph TD
     User((User)) -->|Request + JWT| API[REST Controllers]
     API -->|Auth Check| Sec[Spring Security Filter]
     Sec -->|Valid| Service[Business Logic Layer]
-    Service -->|JPA| DB[(PostgreSQL)
+    Service -->|JPA| DB[(PostgreSQL)]
