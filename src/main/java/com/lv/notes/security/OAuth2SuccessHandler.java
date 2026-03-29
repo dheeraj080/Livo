@@ -1,8 +1,8 @@
 package com.lv.notes.security;
 
-import com.lv.notes.entity.Provider;
-import com.lv.notes.entity.RefreshToken;
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.Provider;
+import com.lv.notes.domain.entity.RefreshToken;
+import com.lv.notes.domain.entity.User;
 import com.lv.notes.repository.RefreshTokenRepository;
 import com.lv.notes.repository.UserRepository;
 import jakarta.servlet.ServletException;

@@ -4,7 +4,7 @@
 //import com.lv.notes.dto.LoginRequest;
 //import com.lv.notes.dto.TokenResponse;
 //import com.lv.notes.dto.UserDTO;
-//import com.lv.notes.entity.User;
+//import com.lv.notes.domain.entity.User;
 //import com.lv.notes.repository.UserRepository;
 //import com.lv.notes.security.JwtService;
 //import com.lv.notes.service.AuthService;

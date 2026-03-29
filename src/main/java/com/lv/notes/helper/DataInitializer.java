@@ -1,6 +1,6 @@
 package com.lv.notes.helper;
 
-import com.lv.notes.entity.Role;
+import com.lv.notes.domain.entity.Role;
 import com.lv.notes.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;

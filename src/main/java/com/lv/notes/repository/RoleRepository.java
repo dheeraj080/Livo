@@ -1,6 +1,6 @@
 package com.lv.notes.repository;
 
-import com.lv.notes.entity.Role;
+import com.lv.notes.domain.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

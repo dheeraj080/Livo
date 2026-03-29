@@ -1,70 +1,51 @@
 package com.lv.notes.controller;
 
 import com.lv.notes.domain.CreateTaskRequest;
-import com.lv.notes.domain.UpdateTaskRequest;
 import com.lv.notes.domain.entity.Task;
+import com.lv.notes.domain.entity.User;
 import com.lv.notes.dto.TaskDto;
-import com.lv.notes.dto.UpdateTaskRequestDto;
 import com.lv.notes.mapper.TaskMapper;
-import com.lv.notes.repository.TaskRepository;
+import com.lv.notes.repository.UserRepository;
 import com.lv.notes.service.TaskService;
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api/v1/tasks")
+@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService taskService;
     private final TaskMapper taskMapper;
-
-    public TaskController(TaskService taskService, TaskRepository taskRepository, TaskMapper taskMapper) {
-        this.taskService = taskService;
-        this.taskMapper = taskMapper;
-    }
+    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<TaskDto> createTask(
-            @RequestBody CreateTaskRequest createTaskRequestDto
+            @RequestBody CreateTaskRequest requestDto,
+            Principal principal
     ) {
-        CreateTaskRequest createTaskRequest = taskMapper.fromDto(createTaskRequestDto);
-        Task task = taskService.createTask(createTaskRequest);
-        TaskDto taskDto = taskMapper.toDto(task);
-        return new ResponseEntity<>(taskDto, HttpStatus.CREATED);
+        System.out.println("LOG: Request received from Principal: [" + principal.getName() + "]");
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Task task = taskService.createTask(requestDto, user);
+        return new ResponseEntity<>(taskMapper.toDto(task), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskDto>> findAllTasks() {
-        List<Task> tasks = taskService.findAllTasks();
-        List<TaskDto> taskDto = tasks.stream().map(taskMapper::toDto).toList();
-        return ResponseEntity.ok(taskDto);
+    public ResponseEntity<List<TaskDto>> findAllTasks(Principal principal) {
+        List<Task> tasks = taskService.findAllTasks(principal.getName());
+        return ResponseEntity.ok(tasks.stream().map(taskMapper::toDto).toList());
     }
 
-    @PutMapping(path = "/{taskId}")
-    public ResponseEntity<TaskDto> updateTask(
-            @PathVariable UUID taskId,
-            @RequestBody UpdateTaskRequestDto updateTaskRequestDto
-    ) {
-        UpdateTaskRequest updateTaskRequest = taskMapper.fromDto(updateTaskRequestDto);
-        Task task = taskService.updateTask(taskId, updateTaskRequest);
-        TaskDto taskDto = taskMapper.toDto(task);
-
-        return ResponseEntity.ok(taskDto);
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID taskId, Principal principal) {
+        taskService.deleteTask(taskId, principal.getName());
+        return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping(path = "/{taskId}")
-    public ResponseEntity<TaskDto> deleteTask(@PathVariable UUID taskId) {
-        taskService.deleteTask(taskId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-
-
-
-
 }

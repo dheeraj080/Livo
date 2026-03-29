@@ -1,7 +1,7 @@
 package com.lv.notes.repository;
 
-import com.lv.notes.entity.Provider;
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.Provider;
+import com.lv.notes.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

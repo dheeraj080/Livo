@@ -1,7 +1,7 @@
 package com.lv.notes.service.impl;
 
 import com.lv.notes.dto.UserDTO;
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.User;
 import com.lv.notes.exceptions.ResourceNotFoundException;
 import com.lv.notes.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

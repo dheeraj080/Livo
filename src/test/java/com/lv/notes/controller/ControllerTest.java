@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lv.notes.config.SecurityConfig;
 import com.lv.notes.dto.LoginRequest;
 import com.lv.notes.dto.UserDTO;
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.User;
 import com.lv.notes.exceptions.ResourceNotFoundException;
 import com.lv.notes.repository.UserRepository;
 import com.lv.notes.security.JwtAuthenticationFilter;

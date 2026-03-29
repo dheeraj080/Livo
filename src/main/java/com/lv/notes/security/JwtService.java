@@ -1,7 +1,7 @@
 package com.lv.notes.security;
 
-import com.lv.notes.entity.Role;
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.Role;
+import com.lv.notes.domain.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;

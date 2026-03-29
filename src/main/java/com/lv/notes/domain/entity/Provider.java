@@ -1,4 +1,4 @@
-package com.lv.notes.entity;
+package com.lv.notes.domain.entity;
 
 public enum Provider {
     LOCAL,    // Registered via your app's signup form

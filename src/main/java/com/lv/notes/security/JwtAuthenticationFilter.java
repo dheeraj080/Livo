@@ -38,7 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        log.info("authHeader: {}", authHeader);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -52,21 +51,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw new BadCredentialsException("Invalid token type");
             }
 
-            Jws<Claims> parsed = jwtService.parse(token);
+            // Extract User ID from the token
             String userId = jwtService.getUserId(token).toString();
 
-            if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
-                    if (user.isEnabled() && user.isAccountNonLocked()) {
-                        UsernamePasswordAuthenticationToken auth =
-                                new UsernamePasswordAuthenticationToken(
-                                        user, null, user.getAuthorities());
-                        auth.setDetails(new WebAuthenticationDetailsSource()
-                                .buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
-                });
-            }
+            // FIX: Removed the 'if null' check.
+            // The JWT in the header MUST always be the source of truth for the request.
+            userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
+                if (user.isEnabled() && user.isAccountNonLocked()) {
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    user, null, user.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource()
+                            .buildDetails(request));
+
+                    // This forces the security context to the user in the TOKEN
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            });
 
             filterChain.doFilter(request, response);
 

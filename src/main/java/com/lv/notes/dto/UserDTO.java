@@ -1,6 +1,6 @@
 package com.lv.notes.dto;
 
-import com.lv.notes.entity.Provider;
+import com.lv.notes.domain.entity.Provider;
 import lombok.*;
 
 import java.time.Instant;

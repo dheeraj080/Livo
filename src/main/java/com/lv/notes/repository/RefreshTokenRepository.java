@@ -1,6 +1,6 @@
 package com.lv.notes.repository;
 
-import com.lv.notes.entity.RefreshToken;
+import com.lv.notes.domain.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

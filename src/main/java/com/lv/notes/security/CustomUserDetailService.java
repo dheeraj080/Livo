@@ -1,6 +1,6 @@
 package com.lv.notes.security;
 
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.User;
 import com.lv.notes.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,4 +1,4 @@
-package com.lv.notes.entity;
+package com.lv.notes.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

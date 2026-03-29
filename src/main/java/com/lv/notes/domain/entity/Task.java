@@ -15,6 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@Builder
 public class Task {
 
     @Id
@@ -38,11 +39,25 @@ public class Task {
     @Column(name = "priority", nullable = false)
     private TaskPriority priority;
 
-    @Column(name = "created_at",  nullable = false, updatable = false)
     private Instant createdAt;
-
-    @Column(name = "udated_at", nullable = false)
     private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+
 
 
 
@@ -57,6 +72,5 @@ public class Task {
     public int hashCode() {
         return Objects.hashCode(id);
     }
-
 
 }

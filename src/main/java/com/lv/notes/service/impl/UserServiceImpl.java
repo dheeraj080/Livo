@@ -1,9 +1,9 @@
 package com.lv.notes.service.impl;
 
 import com.lv.notes.dto.UserDTO;
-import com.lv.notes.entity.Provider;
-import com.lv.notes.entity.Role;
-import com.lv.notes.entity.User;
+import com.lv.notes.domain.entity.Provider;
+import com.lv.notes.domain.entity.Role;
+import com.lv.notes.domain.entity.User;
 import com.lv.notes.exceptions.ResourceNotFoundException;
 import com.lv.notes.helper.UserHelper;
 import com.lv.notes.repository.RoleRepository;
