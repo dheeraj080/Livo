@@ -31,14 +31,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(TaskNotFoundException.class) // FIXED: Specifically handle TaskNotFoundException
+    public ResponseEntity<ErrorDto> handleTaskNotFoundException(TaskNotFoundException ex){
+        UUID taskId = ex.getId();
+        log.error("Task not found with ID: {}", taskId);
+        ErrorDto errorDto = new ErrorDto(ex.getMessage());
+        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
         ErrorResponse error = new ErrorResponse(exception.getMessage(), HttpStatus.BAD_REQUEST, 400);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // Consolidated Auth Handler: Removed the redundant 'handleBadCredentials' method
-    // and grouped all security-related exceptions here.
     @ExceptionHandler({
             UsernameNotFoundException.class,
             BadCredentialsException.class,
@@ -46,8 +52,7 @@ public class GlobalExceptionHandler {
             AuthenticationException.class
     })
     public ResponseEntity<ApiError> handleAuthException(Exception e, HttpServletRequest request) {
-        log.error(e.getMessage(), e.getCause());
-        // We use 401 UNAUTHORIZED for credentials issues rather than 400 BAD REQUEST
+        log.error("Authentication error: {}", e.getMessage());
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
         var apiError = ApiError.of(
@@ -71,16 +76,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(Exception exception) {
-        // Log the actual exception here so you don't lose the stack trace in your Docker logs
-        ErrorResponse error = new ErrorResponse("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR, 500);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDto> handleValidationException(MethodArgumentNotValidException ex){
-
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -90,12 +87,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDto> handleTaskNotFoundException(TaskNotFoundException ex){
-
-        UUID taskNotFound = ex.getId();
-        String errorMessage = String.format("Task with id %s not found", taskNotFound);
-        ErrorDto errorDto = new ErrorDto(ex.getMessage());
-        return new ResponseEntity<>(errorDto, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(Exception.class) // The final catch-all for anything not handled above
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception exception) {
+        log.error("Internal Server Error: ", exception); // Crucial for debugging Docker logs
+        ErrorResponse error = new ErrorResponse("An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR, 500);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }
