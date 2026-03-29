@@ -1,0 +1,67 @@
+server:
+  port: 2000
+
+spring:
+  datasource:
+    url: jdbc:postgresql://notes-db:5432/notes_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  sql:
+    init:
+      mode: always
+
+  security:
+    oauth2:
+      client:
+        registration:
+            # http://localhost:4005/login/oauth2/code/google
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+              - openid
+          # http://localhost:4005/login/oauth2/code/github
+          # http://localhost:4005/oauth2/authorization/github
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - read:email
+              - read:user
+
+
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+#    org.springframework.security.authentication.dao.DaoAuthenticationProvider: TRACE
+#    org.springframework.security.authentication: TRACE
+#    org.springframework.web: DEBUG
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    com.lv.notes: DEBUG
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:3abac16c63451e13f9a98e15b89e951ac63e0624c0da75b0db558215e9a6de45}
+    issuer: ${JWT_ISSUER:api.lv.com}
+    access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:600}
+    refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
+    refresh-token-cookie-name: ${JWT_REFRESH_COOKIE_NAME:refreshToken}
+    cookie-secure: ${JWT_COOKIE_SECURE:true}
+    cookie-http-only: ${JWT_COOKIE_HTTP_ONLY:true}
+    cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
+    cookie-domain: ${JWT_COOKIE_DOMAIN:localhost:4005}
+
