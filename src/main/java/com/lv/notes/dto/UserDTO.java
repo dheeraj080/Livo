@@ -22,6 +22,7 @@ public class UserDTO {
     private String image;
 
     // Use the 'is' prefix manually or ensure it matches the JSON property
+    @Builder.Default
     private boolean enabled = true;
 
     private Instant createdAt;

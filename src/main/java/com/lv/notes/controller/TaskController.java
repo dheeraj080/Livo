@@ -1,6 +1,7 @@
 package com.lv.notes.controller;
 
 import com.lv.notes.domain.CreateTaskRequest;
+import com.lv.notes.domain.UpdateTaskRequest;
 import com.lv.notes.domain.entity.Task;
 import com.lv.notes.domain.entity.User;
 import com.lv.notes.dto.TaskDto;
@@ -41,6 +42,16 @@ public class TaskController {
     public ResponseEntity<List<TaskDto>> findAllTasks(Principal principal) {
         List<Task> tasks = taskService.findAllTasks(principal.getName());
         return ResponseEntity.ok(tasks.stream().map(taskMapper::toDto).toList());
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<TaskDto> updateTask(
+            @PathVariable UUID taskId,
+            @RequestBody UpdateTaskRequest requestDto,
+            Principal principal
+    ) {
+        Task task = taskService.updateTask(taskId, requestDto, principal.getName());
+        return ResponseEntity.ok(taskMapper.toDto(task));
     }
 
     @DeleteMapping("/{taskId}")

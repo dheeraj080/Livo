@@ -30,7 +30,7 @@ COPY --from=builder --chown=spring:spring /app/target/extracted/application/ ./
 USER spring:spring
 
 # Standard Spring Boot port is 8080; 4005 is specific to your app, which is fine.
-EXPOSE 4005
+EXPOSE 2000
 
 ENTRYPOINT ["java", \
   "-XX:TieredStopAtLevel=1", \

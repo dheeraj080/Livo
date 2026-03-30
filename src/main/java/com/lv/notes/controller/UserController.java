@@ -40,6 +40,11 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userDTO, userId));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getMe(java.security.Principal principal) {
+        return ResponseEntity.ok(userService.getUserByEmail(principal.getName()));
+    }
+
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT) // Returns 204 No Content instead of 200 OK
     public void deleteUser(@PathVariable String userId) {
