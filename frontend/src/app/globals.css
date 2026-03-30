@@ -1,57 +1,98 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: var(--primary);
+  --font-sans: var(--font-inter, 'Inter', system-ui, sans-serif);
+
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-primary:            var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-border: var(--border);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-destructive:        var(--destructive);
 }
 
+/* ── Light ── */
 :root {
-  --background: #f5f5f7; /* Apple Gray */
-  --foreground: #1d1d1f;
-  --primary: #f2a600; /* Apple Notes Gold */
-  --primary-foreground: #ffffff;
-  --card: #ffffff;
-  --card-foreground: #1d1d1f;
-  --muted: #e5e5ea;
-  --muted-foreground: #6e6e73;
-  --accent: #fff9e6;
-  --accent-foreground: #f2a600;
-  --border: #d1d1d6;
+  --background:         #FAFAF8;
+  --foreground:         #0E0E0C;
+  --primary:            #0E0E0C;
+  --primary-foreground: #FAFAF8;
+  --card:               #FFFFFF;
+  --card-foreground:    #0E0E0C;
+  --muted:              #F2EDE7;
+  --muted-foreground:   #6C6760;
+  --accent:             #F5F0E8;
+  --accent-foreground:  #0E0E0C;
+  --border:             #DED8CE;
+  --input:              #F5F0E8;
+  --destructive:        #B91C1C;
 }
 
+/* ── Dark ── */
 .dark {
-  --background: #000000;
-  --foreground: #f5f5f7;
-  --primary: #ffd60a;
-  --primary-foreground: #000000;
-  --card: #1c1c1e;
-  --card-foreground: #f5f5f7;
-  --muted: #2c2c2e;
-  --muted-foreground: #8e8e93;
-  --accent: #2c2c2e;
-  --accent-foreground: #ffd60a;
-  --border: #38383a;
+  --background:         #0C0C0A;
+  --foreground:         #EDE8E0;
+  --primary:            #EDE8E0;
+  --primary-foreground: #0C0C0A;
+  --card:               #131310;
+  --card-foreground:    #EDE8E0;
+  --muted:              #1E1D1A;
+  --muted-foreground:   #A8A5A0;
+  --accent:             #1E1D1A;
+  --accent-foreground:  #EDE8E0;
+  --border:             #2D2A24;
+  --input:              #1E1D1A;
+  --destructive:        #F07060;
 }
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  background-color: var(--background);
+  background: var(--background);
   color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-inter, 'Inter', system-ui, sans-serif);
 }
 
-.animate-soft-fade {
-  animation: soft-fade 0.4s ease-out;
+/* ── Squircle Tokens ── */
+@theme {
+  --radius-squircle: 22px;
+  --radius-squircle-sm: 12px;
+  --radius-squircle-lg: 32px;
 }
 
-@keyframes soft-fade {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ── Scrollbar ── */
+::-webkit-scrollbar          { width: 3px; height: 3px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+/* ── Animations ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+.animate-fade-up  { animation: fade-up  0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in  { animation: fade-in  0.3s ease both; }
+.animate-scale-in { animation: scale-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }

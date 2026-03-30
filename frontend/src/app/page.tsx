@@ -9,18 +9,28 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    } else {
-      router.push('/auth/login');
-    }
+    if (user) router.push('/dashboard');
+    else router.push('/auth/login');
   }, [user, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50">
-      <div className="animate-pulse flex flex-col items-center">
-        <div className="w-16 h-16 bg-indigo-600 rounded-2xl mb-4 shadow-xl"></div>
-        <div className="h-4 w-32 bg-slate-200 rounded"></div>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex flex-col items-center gap-5 animate-fade-in">
+        <div
+          className="w-11 h-11 rounded-xl bg-foreground flex items-center justify-center"
+        >
+          <span
+            className="text-background text-xl font-normal"
+            style={{ fontFamily: 'var(--font-display, Georgia, serif)', fontStyle: 'italic' }}
+          >
+            L
+          </span>
+        </div>
+        <div className="flex gap-1">
+          <div className="w-1 h-1 rounded-full bg-muted-foreground/30 animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-1 h-1 rounded-full bg-muted-foreground/30 animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-1 h-1 rounded-full bg-muted-foreground/30 animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
       </div>
     </div>
   );

@@ -42,36 +42,36 @@ export function TaskForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-1">
-                <Input
+              <Input
                 placeholder="What needs to be done?"
                 {...register('title')}
                 error={!!errors.title}
-                />
-                {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+              />
+              {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
             </div>
             <div className="space-y-1">
-                <Input
+              <Input
                 placeholder="Description (optional)"
                 {...register('description')}
-                />
+              />
             </div>
             <div className="space-y-1">
-                <Input
+              <Input
                 type="date"
                 {...register('dueDate')}
                 error={!!errors.dueDate}
-                />
-                {errors.dueDate && <p className="text-xs text-red-500">{errors.dueDate.message}</p>}
+              />
+              {errors.dueDate && <p className="text-xs text-red-500">{errors.dueDate.message}</p>}
             </div>
             <div className="space-y-1">
-                <select
-                    {...register('priority')}
-                    className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2"
-                >
-                    <option value={TaskPriority.LOW}>Low Priority</option>
-                    <option value={TaskPriority.MEDIUM}>Medium Priority</option>
-                    <option value={TaskPriority.HIGH}>High Priority</option>
-                </select>
+              <select
+                {...register('priority')}
+                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2"
+              >
+                <option value={TaskPriority.LOW}>Low</option>
+                <option value={TaskPriority.MEDIUM}>Medium</option>
+                <option value={TaskPriority.HIGH}>High</option>
+              </select>
             </div>
           </div>
           <Button type="submit" disabled={isSubmitting} className="md:self-end">
