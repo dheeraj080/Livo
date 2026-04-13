@@ -9,7 +9,7 @@ A high-performance, **production-ready** To-Do application. This project consoli
 
 ## 🚀 Key Features
 
-* **Internal Auth System:** Fully integrated JWT authentication (migrated from microservices).
+* **Internal Auth System:** Fully integrated JWT authentication (migrated from microservice).
 * **Stateless Security:** Implements `HS256` or `RS256` token validation.
 * **Database Integrity:** Strict SQL Foreign Keys between `Users` and `Tasks`.
 * **Flyway Migrations:** Version-controlled database schema changes.
