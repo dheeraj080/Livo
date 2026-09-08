@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { notebooksRepository, type NotebookWithStats } from '../../repositories/notebooks.repository';
+import { notesRepository } from '../../repositories/notes.repository';
 import type { Notebook } from '@/src/types';
 
 export const createNotebookSchema = z.object({
@@ -11,7 +12,7 @@ export const createNotebookSchema = z.object({
 });
 
 export const updateNotebookSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
+  name: z.string().min(1, 'Notebook name cannot be empty').max(100).optional(),
   parentId: z.string().uuid().optional().nullable(),
   description: z.string().max(500).optional(),
   color: z.string().regex(/^#([0-9a-fA-F]{3}){1,2}$/).optional(),
@@ -51,8 +52,18 @@ export async function createNotebook(
   userId: string,
   input: CreateNotebookInput
 ): Promise<Notebook> {
+  const trimmedName = input.name.trim();
+  if (!trimmedName) {
+    throw new Error('Notebook name cannot be empty.');
+  }
+
+  const existing = await notebooksRepository.findByName(userId, trimmedName);
+  if (existing) {
+    throw new Error(`A notebook named "${trimmedName}" already exists.`);
+  }
+
   const created = await notebooksRepository.create(userId, {
-    name: input.name,
+    name: trimmedName,
     parentId: input.parentId,
   });
 
@@ -67,8 +78,21 @@ export async function updateNotebook(
   id: string,
   input: UpdateNotebookInput
 ): Promise<Notebook | null> {
+  let trimmedName: string | undefined = undefined;
+  if (input.name !== undefined) {
+    trimmedName = input.name.trim();
+    if (!trimmedName) {
+      throw new Error('Notebook name cannot be empty.');
+    }
+
+    const existing = await notebooksRepository.findByName(userId, trimmedName);
+    if (existing && existing.id !== id) {
+      throw new Error(`A notebook named "${trimmedName}" already exists.`);
+    }
+  }
+
   const updated = await notebooksRepository.update(userId, id, {
-    name: input.name,
+    name: trimmedName,
     parentId: input.parentId,
   });
 
@@ -80,5 +104,7 @@ export async function updateNotebook(
 }
 
 export async function deleteNotebook(userId: string, id: string): Promise<boolean> {
+  // First safely unassign any notes belonging to this notebook so they remain in "All Notes"
+  await notesRepository.unassignNotebook(userId, id);
   return notebooksRepository.delete(userId, id);
 }

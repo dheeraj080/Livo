@@ -1,8 +1,8 @@
-import { getElasticsearchClient } from './client';
-import { logger } from '@/src/server/lib/logger';
+import { getElasticsearchClient } from "./client";
+import { logger } from "@/src/server/lib/logger";
 
-export const NOTES_INDEX = 'livo_notes';
-export const CHUNKS_INDEX = 'livo_note_chunks';
+export const NOTES_INDEX = "livo_notes";
+export const CHUNKS_INDEX = "livo_note_chunks";
 
 export interface NoteSearchDocument {
   note_id: string;
@@ -17,24 +17,24 @@ export interface NoteSearchDocument {
 
 export const CHUNKS_INDEX_MAPPING = {
   properties: {
-    chunk_id: { type: 'keyword' },
-    note_id: { type: 'keyword' },
-    user_id: { type: 'keyword' },
-    notebook_id: { type: 'keyword' },
+    chunk_id: { type: "keyword" },
+    note_id: { type: "keyword" },
+    user_id: { type: "keyword" },
+    notebook_id: { type: "keyword" },
     title: {
-      type: 'text',
-      fields: { keyword: { type: 'keyword', ignore_above: 256 } },
+      type: "text",
+      fields: { keyword: { type: "keyword", ignore_above: 256 } },
     },
-    text: { type: 'text' },
-    chunk_position: { type: 'integer' },
-    metadata: { type: 'object' },
+    text: { type: "text" },
+    chunk_position: { type: "integer" },
+    metadata: { type: "object" },
     embedding: {
-      type: 'dense_vector',
+      type: "dense_vector",
       dims: 768,
       index: true,
-      similarity: 'cosine',
+      similarity: "cosine",
     },
-    updated_at: { type: 'date' },
+    updated_at: { type: "date" },
   },
 } as const;
 
@@ -44,34 +44,34 @@ export const CHUNKS_INDEX_MAPPING = {
 export const NOTES_INDEX_MAPPING = {
   properties: {
     note_id: {
-      type: 'keyword',
+      type: "keyword",
     },
     user_id: {
-      type: 'keyword',
+      type: "keyword",
     },
     notebook_id: {
-      type: 'keyword',
+      type: "keyword",
     },
     title: {
-      type: 'text',
+      type: "text",
       fields: {
         keyword: {
-          type: 'keyword',
+          type: "keyword",
           ignore_above: 256,
         },
       },
     },
     content: {
-      type: 'text',
+      type: "text",
     },
     tags: {
-      type: 'keyword',
+      type: "keyword",
     },
     created_at: {
-      type: 'date',
+      type: "date",
     },
     updated_at: {
-      type: 'date',
+      type: "date",
     },
   },
 } as const;
@@ -82,7 +82,7 @@ export const NOTES_INDEX_SETTINGS = {
   analysis: {
     analyzer: {
       default: {
-        type: 'standard',
+        type: "standard",
       },
     },
   },
@@ -110,8 +110,8 @@ export async function ensureNotesIndexExists(): Promise<boolean> {
 
     if (!exists) {
       logger.info({
-        service: 'elasticsearch',
-        event: 'index_creation_started',
+        service: "elasticsearch",
+        event: "index_creation_started",
         meta: { index: NOTES_INDEX },
       });
 
@@ -122,8 +122,8 @@ export async function ensureNotesIndexExists(): Promise<boolean> {
       });
 
       logger.info({
-        service: 'elasticsearch',
-        event: 'index_created',
+        service: "elasticsearch",
+        event: "index_created",
         durationMs: Date.now() - startTime,
         meta: { index: NOTES_INDEX },
       });
@@ -135,8 +135,8 @@ export async function ensureNotesIndexExists(): Promise<boolean> {
       });
 
       logger.debug({
-        service: 'elasticsearch',
-        event: 'index_mapping_updated',
+        service: "elasticsearch",
+        event: "index_mapping_updated",
         durationMs: Date.now() - startTime,
         meta: { index: NOTES_INDEX },
       });
@@ -146,8 +146,8 @@ export async function ensureNotesIndexExists(): Promise<boolean> {
     return true;
   } catch (error: any) {
     logger.error({
-      service: 'elasticsearch',
-      event: 'index_initialization_failed',
+      service: "elasticsearch",
+      event: "index_initialization_failed",
       durationMs: Date.now() - startTime,
       error,
       meta: { index: NOTES_INDEX },
@@ -186,8 +186,8 @@ export async function ensureChunksIndexExists(): Promise<boolean> {
     return true;
   } catch (error: any) {
     logger.error({
-      service: 'elasticsearch',
-      event: 'chunks_index_initialization_failed',
+      service: "elasticsearch",
+      event: "chunks_index_initialization_failed",
       error,
     });
     return false;
@@ -200,7 +200,7 @@ export async function ensureChunksIndexExists(): Promise<boolean> {
  */
 export async function migrateNotesIndex(): Promise<{
   success: boolean;
-  status: 'created' | 'updated' | 'failed';
+  status: "created" | "updated" | "failed";
   index: string;
   durationMs: number;
   error?: string;
@@ -211,16 +211,16 @@ export async function migrateNotesIndex(): Promise<{
   if (!client) {
     return {
       success: false,
-      status: 'failed',
+      status: "failed",
       index: NOTES_INDEX,
       durationMs: 0,
-      error: 'Elasticsearch client is not configured or available',
+      error: "Elasticsearch client is not configured or available",
     };
   }
 
   try {
     const exists = await client.indices.exists({ index: NOTES_INDEX });
-    let status: 'created' | 'updated' = 'updated';
+    let status: "created" | "updated" = "updated";
 
     if (!exists) {
       await client.indices.create({
@@ -228,7 +228,7 @@ export async function migrateNotesIndex(): Promise<{
         settings: NOTES_INDEX_SETTINGS,
         mappings: NOTES_INDEX_MAPPING,
       });
-      status = 'created';
+      status = "created";
     } else {
       await client.indices.putMapping({
         index: NOTES_INDEX,
@@ -240,8 +240,8 @@ export async function migrateNotesIndex(): Promise<{
     const durationMs = Date.now() - startTime;
 
     logger.info({
-      service: 'elasticsearch',
-      event: 'index_migration_completed',
+      service: "elasticsearch",
+      event: "index_migration_completed",
       durationMs,
       meta: { index: NOTES_INDEX, status },
     });
@@ -256,8 +256,8 @@ export async function migrateNotesIndex(): Promise<{
     const durationMs = Date.now() - startTime;
 
     logger.error({
-      service: 'elasticsearch',
-      event: 'index_migration_failed',
+      service: "elasticsearch",
+      event: "index_migration_failed",
       durationMs,
       error,
       meta: { index: NOTES_INDEX },
@@ -265,10 +265,10 @@ export async function migrateNotesIndex(): Promise<{
 
     return {
       success: false,
-      status: 'failed',
+      status: "failed",
       index: NOTES_INDEX,
       durationMs,
-      error: error?.message || 'Migration failed',
+      error: error?.message || "Migration failed",
     };
   }
 }

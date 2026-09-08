@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import {
   listNotebooks,
   createNotebook,
   createNotebookSchema,
-} from '@/src/server/modules/notebooks';
-import { getCurrentUser } from '@/src/server/modules/auth';
+} from "@/src/server/modules/notebooks";
+import { getCurrentUser } from "@/src/server/modules/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,10 +12,10 @@ export async function GET(req: NextRequest) {
     const notebooks = await listNotebooks(user.id);
     return NextResponse.json({ notebooks });
   } catch (error: any) {
-    console.error('[livo API] Failed to list notebooks:', error);
+    console.error("[livo API] Failed to list notebooks:", error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to list notebooks' },
-      { status: 500 }
+      { error: error?.message || "Failed to list notebooks" },
+      { status: 500 },
     );
   }
 }
@@ -28,18 +28,18 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Invalid notebook payload', details: parsed.error.format() },
-        { status: 400 }
+        { error: "Invalid notebook payload", details: parsed.error.format() },
+        { status: 400 },
       );
     }
 
     const notebook = await createNotebook(user.id, parsed.data);
     return NextResponse.json(notebook, { status: 201 });
   } catch (error: any) {
-    console.error('[livo API] Failed to create notebook:', error);
+    console.error("[livo API] Failed to create notebook:", error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to create notebook' },
-      { status: 500 }
+      { error: error?.message || "Failed to create notebook" },
+      { status: 500 },
     );
   }
 }

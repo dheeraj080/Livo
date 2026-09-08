@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/src/server/modules/auth';
-import { searchService } from '@/src/server/services/search';
-import { AiService } from '@/src/server/services/ai/ai.service';
-import { logger } from '@/src/server/lib/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/src/server/modules/auth";
+import { searchService } from "@/src/server/services/search";
+import { AiService } from "@/src/server/services/ai/ai.service";
+import { logger } from "@/src/server/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,18 +10,20 @@ export async function POST(req: NextRequest) {
     const user = await getCurrentUser(req);
     if (!user || !user.id) {
       return NextResponse.json(
-        { error: 'Unauthorized: User authentication required for RAG assistant' },
-        { status: 401 }
+        {
+          error: "Unauthorized: User authentication required for RAG assistant",
+        },
+        { status: 401 },
       );
     }
 
     const body = await req.json();
     const question = body?.question;
 
-    if (!question || typeof question !== 'string' || !question.trim()) {
+    if (!question || typeof question !== "string" || !question.trim()) {
       return NextResponse.json(
-        { error: 'Question is required' },
-        { status: 400 }
+        { error: "Question is required" },
+        { status: 400 },
       );
     }
 
@@ -34,28 +36,29 @@ export async function POST(req: NextRequest) {
         userId,
         query: cleanQuestion,
         pageSize: 6,
-        searchMode: 'hybrid',
+        searchMode: "hybrid",
       },
       1,
-      6
+      6,
     );
 
     const relevantChunks = searchResponse.results;
 
     if (!relevantChunks || relevantChunks.length === 0) {
       return NextResponse.json({
-        answer: "The notes do not contain enough information to answer this question.",
+        answer:
+          "The notes do not contain enough information to answer this question.",
         sources: [],
       });
     }
 
     // 3. Build context without sending entire DB
     const contextLines = relevantChunks.map((chunk, idx) => {
-      const cleanTitle = chunk.title.replace(/<[^>]*>?/gm, '');
+      const cleanTitle = chunk.title.replace(/<[^>]*>?/gm, "");
       return `[Source ${idx + 1}] Note ID: ${chunk.id}\nTitle: ${cleanTitle}\nSnippet: ${chunk.snippet}\n`;
     });
 
-    const contextText = contextLines.join('\n---\n');
+    const contextText = contextLines.join("\n---\n");
 
     const prompt = `
 You are livo AI, an expert personal knowledge assistant. Answer the user's question accurately using ONLY the provided personal notes context below.
@@ -77,7 +80,7 @@ ${contextText}
 
     const sources = relevantChunks.map((chunk) => ({
       noteId: chunk.id,
-      title: chunk.title.replace(/<[^>]*>?/gm, ''),
+      title: chunk.title.replace(/<[^>]*>?/gm, ""),
       chunkId: `${chunk.id}_chunk_0`,
     }));
 
@@ -86,10 +89,10 @@ ${contextText}
       sources,
     });
   } catch (error: any) {
-    logger.error({ service: 'rag', event: 'ask_notes_failed', error });
+    logger.error({ service: "rag", event: "ask_notes_failed", error });
     return NextResponse.json(
-      { error: error?.message || 'Failed to process ask notes request' },
-      { status: 500 }
+      { error: error?.message || "Failed to process ask notes request" },
+      { status: 500 },
     );
   }
 }

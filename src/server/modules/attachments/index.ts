@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { attachmentsRepository } from '../../repositories/attachments.repository';
-import { storageService } from '../../services/storage';
-import { queueDocumentProcessingJob } from '../../services/jobs';
+import { z } from "zod";
+import { attachmentsRepository } from "../../repositories/attachments.repository";
+import { storageService } from "../../services/storage";
+import { queueDocumentProcessingJob } from "../../services/jobs";
 import {
   validateAttachment,
   validateImageMagicBytes,
@@ -10,8 +10,8 @@ import {
   MAX_ATTACHMENT_SIZE_BYTES,
   ALLOWED_IMAGE_MIME_TYPES,
   ALLOWED_ATTACHMENT_MIME_TYPES,
-} from './validation';
-import type { Attachment } from '@/src/types';
+} from "./validation";
+import type { Attachment } from "@/src/types";
 
 export {
   validateAttachment,
@@ -35,7 +35,10 @@ export const attachmentUploadSchema = z.object({
  * Lists all attachments for a specific note.
  * Securely enforces authorization: only attachments belonging to notes owned by the user are returned.
  */
-export async function listNoteAttachments(userId: string, noteId: string): Promise<Attachment[]> {
+export async function listNoteAttachments(
+  userId: string,
+  noteId: string,
+): Promise<Attachment[]> {
   try {
     const rows = await attachmentsRepository.listByNote(userId, noteId);
 
@@ -46,7 +49,7 @@ export async function listNoteAttachments(userId: string, noteId: string): Promi
           presignedUrl = await storageService.getPresignedDownloadUrl(
             r.storageKey,
             3600,
-            `inline; filename="${encodeURIComponent(r.filename)}"`
+            `inline; filename="${encodeURIComponent(r.filename)}"`,
           );
         } catch {
           // If presigning fails or S3 unconfigured, proxy route will be used
@@ -67,18 +70,18 @@ export async function listNoteAttachments(userId: string, noteId: string): Promi
           presignedUrl,
           url: presignedUrl || proxyDownloadUrl,
           publicUrl: presignedUrl || proxyDownloadUrl,
-          status: (r.status as any) || 'UPLOADED',
+          status: (r.status as any) || "UPLOADED",
           extractedText: r.extractedText || undefined,
           processingError: r.processingError || undefined,
           createdAt: r.createdAt.toISOString(),
           updatedAt: r.updatedAt ? r.updatedAt.toISOString() : undefined,
         };
-      })
+      }),
     );
 
     return attachmentsWithUrls;
   } catch (error) {
-    console.error('[livo Attachments] listNoteAttachments error:', error);
+    console.error("[livo Attachments] listNoteAttachments error:", error);
     return [];
   }
 }
@@ -104,9 +107,14 @@ export async function uploadNoteAttachment(data: {
   isImageOnly?: boolean;
 }): Promise<Attachment> {
   // 1. Check note ownership
-  const isOwner = await attachmentsRepository.checkNoteOwnership(data.userId, data.noteId);
+  const isOwner = await attachmentsRepository.checkNoteOwnership(
+    data.userId,
+    data.noteId,
+  );
   if (!isOwner) {
-    throw new Error('Unauthorized: Note does not exist or is not owned by the user.');
+    throw new Error(
+      "Unauthorized: Note does not exist or is not owned by the user.",
+    );
   }
 
   // 2. Validate file size and MIME type
@@ -118,14 +126,16 @@ export async function uploadNoteAttachment(data: {
   });
 
   if (!validation.valid) {
-    throw new Error(validation.error || 'Attachment validation failed.');
+    throw new Error(validation.error || "Attachment validation failed.");
   }
 
   // 3. Magic bytes validation for image attachments
-  if (data.isImageOnly || validation.normalizedMimeType.startsWith('image/')) {
+  if (data.isImageOnly || validation.normalizedMimeType.startsWith("image/")) {
     const isMagicValid = validateImageMagicBytes(data.fileBuffer);
     if (!isMagicValid) {
-      throw new Error('Invalid image file contents. Header does not match expected image format.');
+      throw new Error(
+        "Invalid image file contents. Header does not match expected image format.",
+      );
     }
   }
 
@@ -163,7 +173,10 @@ export async function uploadNoteAttachment(data: {
     filename: safeFilename,
     mimeType: validation.normalizedMimeType,
   }).catch((err) => {
-    console.error('[livo Attachments] Failed to queue document processing job:', err);
+    console.error(
+      "[livo Attachments] Failed to queue document processing job:",
+      err,
+    );
   });
 
   // 8. Generate presigned download URL
@@ -172,7 +185,7 @@ export async function uploadNoteAttachment(data: {
     presignedUrl = await storageService.getPresignedDownloadUrl(
       storageKey,
       3600,
-      `inline; filename="${encodeURIComponent(safeFilename)}"`
+      `inline; filename="${encodeURIComponent(safeFilename)}"`,
     );
   } catch {
     // S3 unconfigured or fallback
@@ -193,7 +206,7 @@ export async function uploadNoteAttachment(data: {
     presignedUrl,
     url: presignedUrl || proxyDownloadUrl,
     publicUrl: presignedUrl || proxyDownloadUrl,
-    status: (record.status as any) || 'UPLOADED',
+    status: (record.status as any) || "UPLOADED",
     extractedText: record.extractedText || undefined,
     processingError: record.processingError || undefined,
     createdAt: record.createdAt.toISOString(),
@@ -207,7 +220,7 @@ export async function uploadNoteAttachment(data: {
  */
 export async function getAttachmentForUser(
   userId: string,
-  attachmentId: string
+  attachmentId: string,
 ): Promise<Attachment | null> {
   const record = await attachmentsRepository.findById(userId, attachmentId);
   if (!record) {
@@ -219,7 +232,7 @@ export async function getAttachmentForUser(
     presignedUrl = await storageService.getPresignedDownloadUrl(
       record.storageKey,
       3600,
-      `inline; filename="${encodeURIComponent(record.filename)}"`
+      `inline; filename="${encodeURIComponent(record.filename)}"`,
     );
   } catch {
     // Fallback
@@ -240,7 +253,7 @@ export async function getAttachmentForUser(
     presignedUrl,
     url: presignedUrl || proxyDownloadUrl,
     publicUrl: presignedUrl || proxyDownloadUrl,
-    status: (record.status as any) || 'UPLOADED',
+    status: (record.status as any) || "UPLOADED",
     extractedText: record.extractedText || undefined,
     processingError: record.processingError || undefined,
     createdAt: record.createdAt.toISOString(),
@@ -254,8 +267,13 @@ export async function getAttachmentForUser(
  */
 export async function downloadAttachmentContent(
   userId: string,
-  attachmentId: string
-): Promise<{ body: Buffer; mimeType: string; filename: string; size: number } | null> {
+  attachmentId: string,
+): Promise<{
+  body: Buffer;
+  mimeType: string;
+  filename: string;
+  size: number;
+} | null> {
   const record = await attachmentsRepository.findById(userId, attachmentId);
   if (!record) {
     return null;
@@ -275,16 +293,21 @@ export async function downloadAttachmentContent(
  * Deletes an attachment from S3/MinIO and its metadata from PostgreSQL.
  * Strictly verifies that the attachment belongs to a note owned by the user.
  */
-export async function removeAttachment(userId: string, id: string): Promise<boolean> {
+export async function removeAttachment(
+  userId: string,
+  id: string,
+): Promise<boolean> {
   const existing = await attachmentsRepository.findById(userId, id);
   if (!existing) {
     return false;
   }
 
   // 1. Delete object from S3-compatible storage
-  await storageService.delete(existing.storageKey).catch((err) =>
-    console.warn('[livo Storage] S3 delete warning:', err.message)
-  );
+  await storageService
+    .delete(existing.storageKey)
+    .catch((err) =>
+      console.warn("[livo Storage] S3 delete warning:", err.message),
+    );
 
   // 2. Delete metadata row from PostgreSQL
   return attachmentsRepository.delete(userId, id);

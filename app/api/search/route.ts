@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { searchQuerySchema, searchNotes } from '@/src/server/modules/search';
-import { getCurrentUser } from '@/src/server/modules/auth';
+import { NextRequest, NextResponse } from "next/server";
+import { searchQuerySchema, searchNotes } from "@/src/server/modules/search";
+import { getCurrentUser } from "@/src/server/modules/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,32 +8,35 @@ export async function GET(req: NextRequest) {
     const user = await getCurrentUser(req);
     if (!user || !user.id) {
       return NextResponse.json(
-        { error: 'Unauthorized: User authentication required for search' },
-        { status: 401 }
+        { error: "Unauthorized: User authentication required for search" },
+        { status: 401 },
       );
     }
 
     // 2. Parse Query Parameters
     const { searchParams } = new URL(req.url);
-    const q = searchParams.get('q') || undefined;
-    const notebookId = searchParams.get('notebookId') || undefined;
-    const tagId = searchParams.get('tagId') || undefined;
-    const rawTagIds = searchParams.getAll('tagIds');
-    const fromDate = searchParams.get('fromDate') || undefined;
-    const toDate = searchParams.get('toDate') || undefined;
-    const page = searchParams.get('page') || undefined;
-    const pageSize = searchParams.get('pageSize') || undefined;
-    const limit = searchParams.get('limit') || undefined;
-    const offset = searchParams.get('offset') || undefined;
-    const sortBy = searchParams.get('sortBy') || undefined;
-    const sortOrder = searchParams.get('sortOrder') || undefined;
-    const noteId = searchParams.get('noteId') || undefined;
-    const searchMode = searchParams.get('searchMode') || undefined;
+    const q = searchParams.get("q") || undefined;
+    const notebookId = searchParams.get("notebookId") || undefined;
+    const tagId = searchParams.get("tagId") || undefined;
+    const rawTagIds = searchParams.getAll("tagIds");
+    const fromDate = searchParams.get("fromDate") || undefined;
+    const toDate = searchParams.get("toDate") || undefined;
+    const page = searchParams.get("page") || undefined;
+    const pageSize = searchParams.get("pageSize") || undefined;
+    const limit = searchParams.get("limit") || undefined;
+    const offset = searchParams.get("offset") || undefined;
+    const sortBy = searchParams.get("sortBy") || undefined;
+    const sortOrder = searchParams.get("sortOrder") || undefined;
+    const noteId = searchParams.get("noteId") || undefined;
+    const searchMode = searchParams.get("searchMode") || undefined;
 
     // Normalizing tagIds
     let tagIds: string[] | undefined;
     if (rawTagIds.length > 0) {
-      tagIds = rawTagIds.flatMap((t) => t.split(',')).map((t) => t.trim()).filter(Boolean);
+      tagIds = rawTagIds
+        .flatMap((t) => t.split(","))
+        .map((t) => t.trim())
+        .filter(Boolean);
     } else if (tagId) {
       tagIds = [tagId.trim()];
     }
@@ -66,8 +69,8 @@ export async function GET(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Invalid search parameters', details: parsed.error.format() },
-        { status: 400 }
+        { error: "Invalid search parameters", details: parsed.error.format() },
+        { status: 400 },
       );
     }
 
@@ -89,10 +92,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(searchResults);
   } catch (error: any) {
-    console.error('[livo API] Search error:', error);
+    console.error("[livo API] Search error:", error);
     return NextResponse.json(
-      { error: error?.message || 'Search execution failed' },
-      { status: 500 }
+      { error: error?.message || "Search execution failed" },
+      { status: 500 },
     );
   }
 }

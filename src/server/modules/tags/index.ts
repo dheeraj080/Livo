@@ -55,3 +55,13 @@ export async function getTagsForNote(userId: string, noteId: string): Promise<Ta
   const rows = await tagsRepository.getTagsForNote(userId, noteId);
   return rows.map((r) => mapTagToDomain({ ...r, noteCount: 0 }));
 }
+
+export async function setTagsForNote(
+  userId: string,
+  noteId: string,
+  tagIds: string[]
+): Promise<Tag[]> {
+  const rows = await tagsRepository.setTagsForNote(userId, noteId, tagIds);
+  return rows.map((r) => mapTagToDomain({ ...r, noteCount: 0 }));
+}
+

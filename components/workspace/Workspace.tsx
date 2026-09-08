@@ -5,10 +5,16 @@ import { Sidebar } from '@/components/sidebar/Sidebar';
 import { NoteList } from '@/components/notes/NoteList';
 import { MainEditorArea } from '@/components/editor/MainEditorArea';
 import { SearchModal } from '@/components/search/SearchModal';
-import { AIAssistantDrawer } from '@/components/ai/AIAssistantDrawer';
 import { SystemHealthModal } from '@/components/health/SystemHealthModal';
 import { CreateNotebookModal } from '@/components/notebooks/CreateNotebookModal';
-import { AskMyNotesPanel } from '@/components/ai/AskMyNotesPanel';
+import { RenameNotebookModal } from '@/components/notebooks/RenameNotebookModal';
+import { DeleteNotebookModal } from '@/components/notebooks/DeleteNotebookModal';
+import { CreateTagModal } from '@/components/tags/CreateTagModal';
+import { MoveNoteModal } from '@/components/notes/MoveNoteModal';
+import { ManageNoteTagsModal } from '@/components/notes/ManageNoteTagsModal';
+import { RenameNoteModal } from '@/components/notes/RenameNoteModal';
+import { EmptyTrashModal } from '@/components/notes/EmptyTrashModal';
+import { AsklivoPanel } from '@/components/ai/AskMyNotesPanel';
 import type { Note, Notebook, Tag } from '@/src/types';
 
 // Fixed starter timestamp to ensure 100% deterministic SSR/CSR hydration
@@ -30,12 +36,13 @@ const INITIAL_DEMO_NOTE: Note = {
       <li><strong>Google Gemini AI:</strong> Server-side summarization, outline generation, and text refinement</li>
       <li><strong>Tiptap:</strong> Modern headless rich-text editing engine</li>
     </ul>
-    <blockquote>Click the <strong>livo AI</strong> button in the top-right toolbar to summarize or extract action items from this note using Gemini server-side.</blockquote>
+    <blockquote>Use the <strong>✦ AI</strong> button in the note header to summarize, extract tasks, or refine content, and use <strong>✦ Ask livo</strong> in the sidebar to search and question your knowledge base.</blockquote>
   `,
   plainText: 'Welcome to livo. livo is your personal AI-powered knowledge management engine inspired by Evernote and Notion.',
   isPinned: true,
   isArchived: false,
   isTrashed: false,
+  notebookId: 'nb-primary',
   tags: [{ id: 'tag-1', name: 'GettingStarted', color: '#4f46e5', noteCount: 1 }],
   createdAt: INITIAL_DEMO_TIMESTAMP,
   updatedAt: INITIAL_DEMO_TIMESTAMP,
@@ -68,12 +75,18 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
   const [selectedNotebookId, setSelectedNotebookId] = useState<string | undefined>();
   const [selectedTagId, setSelectedTagId] = useState<string | undefined>();
 
-  // Modals & Drawers state
+  // Modals & Panels state
   const [searchOpen, setSearchOpen] = useState(false);
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
-  const [askMyNotesOpen, setAskMyNotesOpen] = useState(false);
+  const [asklivoOpen, setAsklivoOpen] = useState(false);
   const [healthModalOpen, setHealthModalOpen] = useState(false);
   const [createNotebookOpen, setCreateNotebookOpen] = useState(false);
+  const [renameNotebook, setRenameNotebook] = useState<Notebook | null>(null);
+  const [deleteNotebook, setDeleteNotebook] = useState<Notebook | null>(null);
+  const [createTagOpen, setCreateTagOpen] = useState(false);
+  const [moveNote, setMoveNote] = useState<Note | null>(null);
+  const [manageTagsNote, setManageTagsNote] = useState<Note | null>(null);
+  const [renameNote, setRenameNote] = useState<Note | null>(null);
+  const [emptyTrashOpen, setEmptyTrashOpen] = useState(false);
 
   // Sync with real REST API endpoints on initial mount or when initialNoteId changes
   useEffect(() => {
@@ -340,6 +353,272 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
     setSelectedNotebookId(fallback.id);
   };
 
+  // Rename Notebook handler
+  const handleRenameNotebook = async (id: string, newName: string) => {
+    setNotebooks((prev) =>
+      prev.map((nb) => (nb.id === id ? { ...nb, name: newName, updatedAt: new Date().toISOString() } : nb))
+    );
+    setNotes((prev) =>
+      prev.map((n) => (n.notebookId === id ? { ...n, notebookName: newName } : n))
+    );
+    if (activeNote?.notebookId === id) {
+      setActiveNote((curr) => (curr ? { ...curr, notebookName: newName } : curr));
+    }
+
+    try {
+      await fetch(`/api/notebooks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName }),
+      });
+    } catch (err) {
+      console.warn('[livo API] Rename notebook failed:', err);
+    }
+  };
+
+  // Delete Notebook handler (unassigns notes, does NOT delete them)
+  const handleDeleteNotebook = async (id: string) => {
+    setNotebooks((prev) => prev.filter((nb) => nb.id !== id));
+    setNotes((prev) =>
+      prev.map((n) => (n.notebookId === id ? { ...n, notebookId: undefined, notebookName: undefined } : n))
+    );
+    if (activeNote?.notebookId === id) {
+      setActiveNote((curr) => (curr ? { ...curr, notebookId: undefined, notebookName: undefined } : curr));
+    }
+    if (selectedNotebookId === id) {
+      setSelectedNotebookId(undefined);
+      setSelectedView('all');
+    }
+
+    try {
+      await fetch(`/api/notebooks/${id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.warn('[livo API] Delete notebook failed:', err);
+    }
+  };
+
+  // Create Tag handler
+  const handleCreateTag = async (name: string, color?: string) => {
+    try {
+      const res = await fetch('/api/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, color: color || '#6366f1' }),
+      });
+      if (res.ok) {
+        const created: Tag = await res.json();
+        setTags((prev) => [...prev, created]);
+        return;
+      }
+    } catch (err) {
+      console.warn('[livo API] Create tag failed:', err);
+    }
+
+    const fallback: Tag = {
+      id: `tag-${Date.now()}`,
+      name,
+      color: color || '#6366f1',
+      noteCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+    setTags((prev) => [...prev, fallback]);
+  };
+
+  // Move Note handler
+  const handleMoveNote = async (noteId: string, targetNotebookId: string | null) => {
+    const targetNb = targetNotebookId ? notebooks.find((nb) => nb.id === targetNotebookId) : null;
+    const targetNotebookName = targetNb ? targetNb.name : undefined;
+
+    setNotes((prev) =>
+      prev.map((n) =>
+        n.id === noteId
+          ? {
+              ...n,
+              notebookId: targetNotebookId || undefined,
+              notebookName: targetNotebookName,
+              updatedAt: new Date().toISOString(),
+            }
+          : n
+      )
+    );
+
+    if (activeNote?.id === noteId) {
+      setActiveNote((curr) =>
+        curr
+          ? {
+              ...curr,
+              notebookId: targetNotebookId || undefined,
+              notebookName: targetNotebookName,
+              updatedAt: new Date().toISOString(),
+            }
+          : curr
+      );
+    }
+
+    try {
+      await fetch(`/api/notes/${noteId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notebookId: targetNotebookId }),
+      });
+    } catch (err) {
+      console.warn('[livo API] Move note failed:', err);
+    }
+  };
+
+  // Manage Note Tags handler
+  const handleManageNoteTags = async (noteId: string, tagIds: string[]) => {
+    const assignedTags = tags.filter((t) => tagIds.includes(t.id));
+
+    setNotes((prev) =>
+      prev.map((n) => (n.id === noteId ? { ...n, tags: assignedTags, updatedAt: new Date().toISOString() } : n))
+    );
+    if (activeNote?.id === noteId) {
+      setActiveNote((curr) => (curr ? { ...curr, tags: assignedTags, updatedAt: new Date().toISOString() } : curr));
+    }
+
+    try {
+      await fetch(`/api/notes/${noteId}/tags`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tagIds }),
+      });
+    } catch (err) {
+      console.warn('[livo API] Update tags failed:', err);
+    }
+  };
+
+  // Duplicate Note handler
+  const handleDuplicateNote = async (sourceNote: Note) => {
+    const copyTitle = `${sourceNote.title} (Copy)`;
+    const copyData = {
+      title: copyTitle,
+      content_json: sourceNote.contentJson,
+      content_text: sourceNote.contentText || sourceNote.plainText,
+      content: sourceNote.content,
+      plainText: sourceNote.plainText,
+      notebookId: sourceNote.notebookId,
+      isPinned: false,
+      isArchived: false,
+      isTrashed: false,
+      tagIds: sourceNote.tags?.map((t) => t.id) || [],
+    };
+
+    try {
+      const res = await fetch('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(copyData),
+      });
+      if (res.ok) {
+        const created: Note = await res.json();
+        setNotes((prev) => [created, ...prev]);
+        setActiveNote(created);
+        if (typeof window !== 'undefined') {
+          window.history.pushState(null, '', `/app/notes/${created.id}`);
+        }
+        return;
+      }
+    } catch (err) {
+      console.warn('[livo API] Duplicate note fallback:', err);
+    }
+
+    const fallback: Note = {
+      ...sourceNote,
+      id: `note-${Date.now()}`,
+      title: copyTitle,
+      isPinned: false,
+      isTrashed: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setNotes((prev) => [fallback, ...prev]);
+    setActiveNote(fallback);
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', `/app/notes/${fallback.id}`);
+    }
+  };
+
+  // Toggle Pin handler
+  const handleTogglePin = (noteId: string) => {
+    const target = notes.find((n) => n.id === noteId);
+    if (target) {
+      handleSaveNote(noteId, { isPinned: !target.isPinned });
+    }
+  };
+
+  // Permanent Delete Note handler
+  const handlePermanentDeleteNote = async (id: string) => {
+    setNotes((prev) => prev.filter((n) => n.id !== id));
+    if (activeNote?.id === id) {
+      const remaining = notes.filter((n) => n.id !== id && !n.isTrashed);
+      setActiveNote(remaining.length > 0 ? remaining[0] : null);
+    }
+
+    try {
+      await fetch(`/api/notes/${id}?permanent=true`, { method: 'DELETE' });
+    } catch (err) {
+      console.warn('[livo API] Permanent delete note error:', err);
+    }
+  };
+
+  // Empty Trash handler
+  const handleEmptyTrash = async () => {
+    const trashedIds = notes.filter((n) => n.isTrashed).map((n) => n.id);
+    setNotes((prev) => prev.filter((n) => !n.isTrashed));
+    if (activeNote?.isTrashed) {
+      const remaining = notes.filter((n) => !n.isTrashed);
+      setActiveNote(remaining.length > 0 ? remaining[0] : null);
+    }
+
+    for (const id of trashedIds) {
+      try {
+        await fetch(`/api/notes/${id}?permanent=true`, { method: 'DELETE' });
+      } catch {
+        // Continue emptying
+      }
+    }
+  };
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput =
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable);
+
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n' && !isInput) {
+        e.preventDefault();
+        handleCreateNote();
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'j' && !isInput) {
+        e.preventDefault();
+        setAsklivoOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNotebookId]);
+
+  // Dynamic live accurate counts
+  const notebooksWithLiveCounts = notebooks.map((nb) => ({
+    ...nb,
+    noteCount: notes.filter((n) => !n.isTrashed && n.notebookId === nb.id).length,
+  }));
+
+  const tagsWithLiveCounts = tags.map((t) => ({
+    ...t,
+    noteCount: notes.filter((n) => !n.isTrashed && n.tags?.some((tag) => tag.id === t.id)).length,
+  }));
+
+  const trashCount = notes.filter((n) => n.isTrashed).length;
+
   // Filter notes according to selected navigation view
   const visibleNotes = notes.filter((n) => {
     if (selectedView === 'trash') return n.isTrashed;
@@ -368,11 +647,12 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
     <div className="flex h-screen w-screen overflow-hidden bg-white text-stone-900 font-sans antialiased">
       {/* 1. Left Sidebar Navigation */}
       <Sidebar
-        notebooks={notebooks}
-        tags={tags}
+        notebooks={notebooksWithLiveCounts}
+        tags={tagsWithLiveCounts}
         selectedView={selectedView}
         selectedNotebookId={selectedNotebookId}
         selectedTagId={selectedTagId}
+        trashCount={trashCount}
         onSelectView={(view) => {
           setSelectedView(view);
           setSelectedNotebookId(undefined);
@@ -390,9 +670,11 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
         }}
         onCreateNote={handleCreateNote}
         onCreateNotebook={() => setCreateNotebookOpen(true)}
+        onRenameNotebook={(nb) => setRenameNotebook(nb)}
+        onDeleteNotebook={(nb) => setDeleteNotebook(nb)}
+        onCreateTag={() => setCreateTagOpen(true)}
         onOpenSearch={() => setSearchOpen(true)}
-        onOpenAI={() => setAiDrawerOpen(true)}
-        onOpenAskMyNotes={() => setAskMyNotesOpen(true)}
+        onOpenAsklivo={() => setAsklivoOpen(true)}
         onOpenHealth={() => setHealthModalOpen(true)}
       />
 
@@ -407,6 +689,15 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
           }
         }}
         onCreateNote={handleCreateNote}
+        onRenameNote={(note) => setRenameNote(note)}
+        onMoveNote={(note) => setMoveNote(note)}
+        onManageTags={(note) => setManageTagsNote(note)}
+        onDuplicateNote={handleDuplicateNote}
+        onTogglePin={handleTogglePin}
+        onDeleteNote={handleDeleteNote}
+        onRestoreNote={handleRestoreNote}
+        onPermanentDeleteNote={handlePermanentDeleteNote}
+        onEmptyTrash={() => setEmptyTrashOpen(true)}
         title={getListTitle()}
       />
 
@@ -418,14 +709,17 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
         onSaveNote={handleSaveNote}
         onDeleteNote={handleDeleteNote}
         onRestoreNote={handleRestoreNote}
-        onOpenAI={() => setAiDrawerOpen(true)}
+        onRenameNote={(note) => setRenameNote(note)}
+        onMoveNote={(note) => setMoveNote(note)}
+        onManageTags={(note) => setManageTagsNote(note)}
+        onDuplicateNote={handleDuplicateNote}
         onOpenSearch={() => setSearchOpen(true)}
       />
 
-      {/* 4. Ask My Notes RAG Assistant Panel */}
-      <AskMyNotesPanel
-        isOpen={askMyNotesOpen}
-        onClose={() => setAskMyNotesOpen(false)}
+      {/* 4. Global AI Knowledge Assistant Panel ("Ask livo") */}
+      <AsklivoPanel
+        isOpen={asklivoOpen}
+        onClose={() => setAsklivoOpen(false)}
         onSelectNote={(noteId) => {
           const match = notes.find((n) => n.id === noteId);
           if (match) {
@@ -437,23 +731,7 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
         }}
       />
 
-      {/* 5. AI Assistant Drawer */}
-      <AIAssistantDrawer
-        isOpen={aiDrawerOpen}
-        onClose={() => setAiDrawerOpen(false)}
-        noteTitle={activeNote?.title || 'Untitled Note'}
-        noteContent={activeNote?.content || ''}
-        onInsertContent={(contentToInsert) => {
-          if (activeNote) {
-            handleSaveNote(activeNote.id, {
-              content: `${activeNote.content}<p>---</p><blockquote>${contentToInsert}</blockquote>`,
-              plainText: `${activeNote.plainText || ''}\n\n${contentToInsert}`,
-            });
-          }
-        }}
-      />
-
-      {/* 6. Search Palette Modal (Elasticsearch) */}
+      {/* 5. Search Palette Modal */}
       <SearchModal
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}
@@ -468,17 +746,84 @@ export default function Workspace({ initialNoteId }: WorkspaceProps) {
         }}
       />
 
-      {/* 7. System Health Diagnostic Modal */}
+      {/* 6. System Health Diagnostic Modal */}
       <SystemHealthModal
         isOpen={healthModalOpen}
         onClose={() => setHealthModalOpen(false)}
       />
 
-      {/* 8. Create Notebook Modal */}
+      {/* 7. Create Notebook Modal */}
       <CreateNotebookModal
         isOpen={createNotebookOpen}
         onClose={() => setCreateNotebookOpen(false)}
         onCreate={handleCreateNotebook}
+        existingNames={notebooks.map((nb) => nb.name)}
+      />
+
+      {/* 8. Rename Notebook Modal */}
+      <RenameNotebookModal
+        isOpen={!!renameNotebook}
+        notebook={renameNotebook}
+        onClose={() => setRenameNotebook(null)}
+        onRename={handleRenameNotebook}
+        existingNames={notebooks.filter((nb) => nb.id !== renameNotebook?.id).map((nb) => nb.name)}
+      />
+
+      {/* 9. Delete Notebook Modal */}
+      <DeleteNotebookModal
+        isOpen={!!deleteNotebook}
+        notebook={deleteNotebook}
+        onClose={() => setDeleteNotebook(null)}
+        onConfirmDelete={handleDeleteNotebook}
+        noteCount={deleteNotebook ? notes.filter((n) => !n.isTrashed && n.notebookId === deleteNotebook.id).length : 0}
+      />
+
+      {/* 10. Create Tag Modal */}
+      <CreateTagModal
+        isOpen={createTagOpen}
+        onClose={() => setCreateTagOpen(false)}
+        onCreateTag={handleCreateTag}
+        existingTagNames={tags.map((t) => t.name)}
+      />
+
+      {/* 11. Move Note Modal */}
+      <MoveNoteModal
+        isOpen={!!moveNote}
+        note={moveNote}
+        notebooks={notebooks}
+        onClose={() => setMoveNote(null)}
+        onMove={handleMoveNote}
+      />
+
+      {/* 12. Manage Note Tags Modal */}
+      <ManageNoteTagsModal
+        isOpen={!!manageTagsNote}
+        note={manageTagsNote}
+        allTags={tags}
+        onClose={() => setManageTagsNote(null)}
+        onSaveTags={handleManageNoteTags}
+        onCreateTagQuick={async (name) => {
+          await handleCreateTag(name);
+          return null;
+        }}
+      />
+
+      {/* 13. Rename Note Modal */}
+      <RenameNoteModal
+        isOpen={!!renameNote}
+        note={renameNote}
+        onClose={() => setRenameNote(null)}
+        onRename={async (noteId, newTitle) => {
+          await handleSaveNote(noteId, { title: newTitle });
+        }}
+      />
+
+      {/* 14. Empty Trash Confirmation Modal */}
+      <EmptyTrashModal
+        isOpen={emptyTrashOpen}
+        onClose={() => setEmptyTrashOpen(false)}
+        onConfirmEmpty={handleEmptyTrash}
+        trashedCount={trashCount}
       />
     </div>
   );

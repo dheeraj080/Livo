@@ -1,4 +1,4 @@
-import { getDatabasePool } from './index';
+import { getDatabasePool } from "./index";
 
 export const INITIAL_MIGRATION_SQL = `
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -91,10 +91,13 @@ CREATE INDEX IF NOT EXISTS "note_versions_note_created_idx" ON "note_versions" (
 
 let migrationRunPromise: Promise<void> | null = null;
 
-export async function runDatabaseMigrations(): Promise<{ success: boolean; error?: string }> {
+export async function runDatabaseMigrations(): Promise<{
+  success: boolean;
+  error?: string;
+}> {
   const pool = getDatabasePool();
   if (!pool) {
-    return { success: false, error: 'Database connection pool not available' };
+    return { success: false, error: "Database connection pool not available" };
   }
 
   if (migrationRunPromise) {
@@ -105,11 +108,11 @@ export async function runDatabaseMigrations(): Promise<{ success: boolean; error
   migrationRunPromise = (async () => {
     const client = await pool.connect();
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
       await client.query(INITIAL_MIGRATION_SQL);
-      await client.query('COMMIT');
+      await client.query("COMMIT");
     } catch (err) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw err;
     } finally {
       client.release();
@@ -121,7 +124,10 @@ export async function runDatabaseMigrations(): Promise<{ success: boolean; error
     return { success: true };
   } catch (err: any) {
     migrationRunPromise = null;
-    console.error('[livo Migrations] Execution failed:', err);
-    return { success: false, error: err?.message || 'Migration execution failed' };
+    console.error("[livo Migrations] Execution failed:", err);
+    return {
+      success: false,
+      error: err?.message || "Migration execution failed",
+    };
   }
 }

@@ -45,6 +45,47 @@ export class NotebooksRepository {
     }
   }
 
+  async findByName(userId: string, name: string): Promise<NotebookRow | null> {
+    const clean = name.trim().toLowerCase();
+    const db = getDatabase();
+    if (!db) {
+      for (const nb of inMemoryNotebooks.values()) {
+        if (nb.userId === userId && nb.name.toLowerCase() === clean) {
+          return nb;
+        }
+      }
+      return null;
+    }
+
+    try {
+      const [row] = await db
+        .select()
+        .from(notebooks)
+        .where(
+          and(
+            eq(notebooks.userId, userId),
+            sql`lower(${notebooks.name}) = ${clean}`
+          )
+        )
+        .limit(1);
+
+      if (row) return row;
+      for (const nb of inMemoryNotebooks.values()) {
+        if (nb.userId === userId && nb.name.toLowerCase() === clean) {
+          return nb;
+        }
+      }
+      return null;
+    } catch {
+      for (const nb of inMemoryNotebooks.values()) {
+        if (nb.userId === userId && nb.name.toLowerCase() === clean) {
+          return nb;
+        }
+      }
+      return null;
+    }
+  }
+
   async listByUser(userId: string): Promise<NotebookWithStats[]> {
     const db = getDatabase();
     if (!db) {

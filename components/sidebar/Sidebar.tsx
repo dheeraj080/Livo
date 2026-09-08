@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   BookOpen,
@@ -14,8 +14,9 @@ import {
   ChevronRight,
   Tag as TagIcon,
   Activity,
-  FolderPlus,
   Cloud,
+  MoreHorizontal,
+  Pencil,
 } from 'lucide-react';
 import type { Notebook, Tag } from '@/src/types';
 
@@ -25,14 +26,19 @@ interface SidebarProps {
   selectedView: string;
   selectedNotebookId?: string;
   selectedTagId?: string;
+  trashCount?: number;
   onSelectView: (view: 'all' | 'favorites' | 'trash') => void;
   onSelectNotebook: (notebookId: string) => void;
   onSelectTag: (tagId: string) => void;
   onCreateNote: () => void;
   onCreateNotebook: () => void;
+  onRenameNotebook?: (notebook: Notebook) => void;
+  onDeleteNotebook?: (notebook: Notebook) => void;
+  onCreateTag?: () => void;
   onOpenSearch: () => void;
-  onOpenAI: () => void;
-  onOpenAskMyNotes: () => void;
+  onOpenAsklivo?: () => void;
+  onOpenAskMyNotes?: () => void;
+  onOpenAI?: () => void;
   onOpenHealth: () => void;
 }
 
@@ -42,18 +48,55 @@ export function Sidebar({
   selectedView,
   selectedNotebookId,
   selectedTagId,
+  trashCount = 0,
   onSelectView,
   onSelectNotebook,
   onSelectTag,
   onCreateNote,
   onCreateNotebook,
+  onRenameNotebook,
+  onDeleteNotebook,
+  onCreateTag,
   onOpenSearch,
-  onOpenAI,
+  onOpenAsklivo,
   onOpenAskMyNotes,
+  onOpenAI,
   onOpenHealth,
 }: SidebarProps) {
   const [notebooksOpen, setNotebooksOpen] = useState(true);
   const [tagsOpen, setTagsOpen] = useState(true);
+  const [activeMenuNotebookId, setActiveMenuNotebookId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // Close context menu on outside click or Esc
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setActiveMenuNotebookId(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveMenuNotebookId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleAsklivoClick = () => {
+    if (onOpenAsklivo) {
+      onOpenAsklivo();
+    } else if (onOpenAskMyNotes) {
+      onOpenAskMyNotes();
+    } else if (onOpenAI) {
+      onOpenAI();
+    }
+  };
 
   return (
     <aside className="w-64 bg-stone-900 text-stone-300 flex flex-col h-screen shrink-0 select-none border-r border-stone-800">
@@ -81,39 +124,33 @@ export function Sidebar({
           <span>New Note</span>
         </button>
 
-        <div className="grid grid-cols-2 gap-1.5 pt-1">
+        <div className="space-y-1.5 pt-0.5">
           <button
             id="sidebar-search-btn"
             type="button"
             onClick={onOpenSearch}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-stone-800/80 hover:bg-stone-700/80 text-stone-200 text-xs transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-stone-800/80 hover:bg-stone-700/80 text-stone-300 text-xs transition-colors"
             title="Search (Cmd+K)"
           >
-            <Search className="w-3.5 h-3.5 text-stone-400" />
+            <Search className="w-4 h-4 text-stone-400 shrink-0" />
             <span>Search</span>
           </button>
+
           <button
-            id="sidebar-ai-btn"
+            id="sidebar-ask-livo-btn"
             type="button"
-            onClick={onOpenAI}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-stone-800/80 hover:bg-stone-700/80 text-stone-200 text-xs transition-colors"
-            title="livo AI Assistant"
+            onClick={handleAsklivoClick}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg bg-stone-800 hover:bg-stone-700 text-indigo-300 hover:text-white font-medium text-xs border border-indigo-500/30 transition-colors shadow-xs"
+            title="Ask livo across your knowledge base"
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-            <span>AI Assist</span>
+            <Sparkles className="w-4 h-4 text-indigo-400 shrink-0" />
+            <span>Ask livo</span>
           </button>
         </div>
-
-        <button
-          id="sidebar-ask-notes-btn"
-          type="button"
-          onClick={onOpenAskMyNotes}
-          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-stone-800 hover:bg-stone-700 text-indigo-300 font-medium text-xs border border-indigo-500/30 transition-colors"
-        >
-          <Sparkles className="w-4 h-4 text-indigo-400" />
-          <span>Ask My Notes (RAG)</span>
-        </button>
       </div>
+
+      {/* Divider */}
+      <div className="mx-3 border-t border-stone-800/80" />
 
       {/* Scrollable Navigation List */}
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-4">
@@ -165,6 +202,11 @@ export function Sidebar({
               <Trash2 className="w-4 h-4 text-stone-500" />
               <span>Trash</span>
             </div>
+            {trashCount > 0 && (
+              <span className="text-[10px] bg-stone-800/90 text-stone-400 px-1.5 py-0.5 rounded font-mono">
+                {trashCount}
+              </span>
+            )}
           </button>
         </div>
 
@@ -175,7 +217,7 @@ export function Sidebar({
               id="sidebar-toggle-notebooks"
               type="button"
               onClick={() => setNotebooksOpen(!notebooksOpen)}
-              className="flex items-center gap-1.5 hover:text-stone-200"
+              className="flex items-center gap-1.5 hover:text-stone-200 cursor-pointer"
             >
               {notebooksOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               <span>Notebooks</span>
@@ -184,41 +226,109 @@ export function Sidebar({
               id="sidebar-add-notebook-btn"
               type="button"
               onClick={onCreateNotebook}
-              className="p-1 rounded hover:bg-stone-800 text-stone-400 hover:text-stone-200"
+              className="p-1 rounded hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-colors cursor-pointer"
               title="Create Notebook"
             >
-              <FolderPlus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {notebooksOpen && (
             <div className="pl-2 space-y-0.5 mt-1">
               {notebooks.length === 0 ? (
-                <p className="text-[11px] text-stone-400 px-3 py-1">No notebooks yet</p>
+                <p className="text-[11px] text-stone-500 px-3 py-1">No notebooks yet</p>
               ) : (
-                notebooks.map((nb) => (
-                  <button
-                    key={nb.id}
-                    id={`notebook-nav-${nb.id}`}
-                    type="button"
-                    onClick={() => onSelectNotebook(nb.id)}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs transition-colors ${
-                      selectedNotebookId === nb.id
-                        ? 'bg-stone-800 text-white font-medium'
-                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <BookOpen className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                      <span className="truncate">{nb.name}</span>
+                notebooks.map((nb) => {
+                  const isSelected = selectedNotebookId === nb.id;
+                  const isMenuOpen = activeMenuNotebookId === nb.id;
+                  return (
+                    <div
+                      key={nb.id}
+                      className={`group relative flex items-center justify-between rounded-md text-xs transition-colors ${
+                        isSelected
+                          ? 'bg-stone-800 text-white font-medium'
+                          : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                      }`}
+                    >
+                      <button
+                        id={`notebook-nav-${nb.id}`}
+                        type="button"
+                        onClick={() => {
+                          onSelectNotebook(nb.id);
+                          setActiveMenuNotebookId(null);
+                        }}
+                        className="flex-1 flex items-center gap-2 px-3 py-1.5 truncate text-left cursor-pointer"
+                      >
+                        <BookOpen
+                          className="w-3.5 h-3.5 shrink-0"
+                          style={{ color: nb.color || '#6366f1' }}
+                        />
+                        <span className="truncate">{nb.name}</span>
+                      </button>
+
+                      <div className="flex items-center gap-1 pr-1.5">
+                        {nb.noteCount !== undefined && nb.noteCount > 0 && !isMenuOpen && (
+                          <span className="text-[10px] bg-stone-800 px-1.5 py-0.5 rounded text-stone-400 group-hover:hidden">
+                            {nb.noteCount}
+                          </span>
+                        )}
+
+                        {/* Hover Context Menu Button (...) */}
+                        <div className="relative">
+                          <button
+                            id={`notebook-menu-btn-${nb.id}`}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveMenuNotebookId(isMenuOpen ? null : nb.id);
+                            }}
+                            className={`p-1 rounded text-stone-400 hover:text-stone-100 hover:bg-stone-700/60 transition-colors cursor-pointer ${
+                              isMenuOpen ? 'opacity-100 bg-stone-700' : 'opacity-0 group-hover:opacity-100'
+                            }`}
+                            title="Notebook actions"
+                          >
+                            <MoreHorizontal className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Context Menu Dropdown */}
+                          {isMenuOpen && (
+                            <div
+                              ref={menuRef}
+                              className="absolute right-0 top-full mt-1 w-36 bg-stone-900 border border-stone-700 rounded-lg shadow-xl py-1 z-50 animate-in fade-in zoom-in-95 duration-100"
+                            >
+                              <button
+                                id={`notebook-rename-btn-${nb.id}`}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveMenuNotebookId(null);
+                                  if (onRenameNotebook) onRenameNotebook(nb);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-stone-300 hover:bg-stone-800 hover:text-white transition-colors cursor-pointer"
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-stone-400" />
+                                <span>Rename</span>
+                              </button>
+                              <button
+                                id={`notebook-delete-btn-${nb.id}`}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveMenuNotebookId(null);
+                                  if (onDeleteNotebook) onDeleteNotebook(nb);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                                <span>Delete</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    {nb.noteCount !== undefined && nb.noteCount > 0 && (
-                      <span className="text-[10px] bg-stone-800 px-1.5 py-0.5 rounded text-stone-400">
-                        {nb.noteCount}
-                      </span>
-                    )}
-                  </button>
-                ))
+                  );
+                })
               )}
             </div>
           )}
@@ -231,17 +341,26 @@ export function Sidebar({
               id="sidebar-toggle-tags"
               type="button"
               onClick={() => setTagsOpen(!tagsOpen)}
-              className="flex items-center gap-1.5 hover:text-stone-200"
+              className="flex items-center gap-1.5 hover:text-stone-200 cursor-pointer"
             >
               {tagsOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               <span>Tags</span>
+            </button>
+            <button
+              id="sidebar-add-tag-btn"
+              type="button"
+              onClick={onCreateTag}
+              className="p-1 rounded hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-colors cursor-pointer"
+              title="Create Tag"
+            >
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {tagsOpen && (
             <div className="pl-2 space-y-0.5 mt-1">
               {tags.length === 0 ? (
-                <p className="text-[11px] text-stone-400 px-3 py-1">No tags defined</p>
+                <p className="text-[11px] text-stone-500 px-3 py-1">No tags defined</p>
               ) : (
                 tags.map((tag) => (
                   <button
@@ -249,14 +368,17 @@ export function Sidebar({
                     id={`tag-nav-${tag.id}`}
                     type="button"
                     onClick={() => onSelectTag(tag.id)}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs transition-colors ${
+                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs transition-colors cursor-pointer ${
                       selectedTagId === tag.id
                         ? 'bg-stone-800 text-white font-medium'
                         : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <TagIcon className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                      <TagIcon
+                        className="w-3.5 h-3.5 shrink-0"
+                        style={{ color: tag.color || '#9ca3af' }}
+                      />
                       <span className="truncate">{tag.name}</span>
                     </div>
                     {tag.noteCount > 0 && (

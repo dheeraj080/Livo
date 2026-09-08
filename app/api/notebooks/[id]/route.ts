@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getNote,
-  updateNote,
-  deleteNote,
-  updateNoteSchema,
-} from "@/src/server/modules/notes";
+  getNotebook,
+  updateNotebook,
+  deleteNotebook,
+  updateNotebookSchema,
+} from "@/src/server/modules/notebooks";
 import { getCurrentUser } from "@/src/server/modules/auth";
 
 export async function GET(
@@ -15,16 +15,19 @@ export async function GET(
     const user = await getCurrentUser(req);
     const { id } = await params;
 
-    const note = await getNote(user.id, id);
-    if (!note) {
-      return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    const notebook = await getNotebook(user.id, id);
+    if (!notebook) {
+      return NextResponse.json(
+        { error: "Notebook not found" },
+        { status: 404 },
+      );
     }
 
-    return NextResponse.json(note);
+    return NextResponse.json(notebook);
   } catch (error: any) {
-    console.error("[livo API] Failed to fetch note:", error);
+    console.error("[livo API] Failed to fetch notebook:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to fetch note" },
+      { error: error?.message || "Failed to fetch notebook" },
       { status: 500 },
     );
   }
@@ -38,8 +41,8 @@ export async function PATCH(
     const user = await getCurrentUser(req);
     const { id } = await params;
     const body = await req.json();
-    const parsed = updateNoteSchema.safeParse(body);
 
+    const parsed = updateNotebookSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Invalid update payload", details: parsed.error.format() },
@@ -47,20 +50,20 @@ export async function PATCH(
       );
     }
 
-    const updated = await updateNote(user.id, id, parsed.data);
+    const updated = await updateNotebook(user.id, id, parsed.data);
     if (!updated) {
       return NextResponse.json(
-        { error: "Note not found or unauthorized" },
+        { error: "Notebook not found or unauthorized" },
         { status: 404 },
       );
     }
 
     return NextResponse.json(updated);
   } catch (error: any) {
-    console.error("[livo API] Failed to update note:", error);
+    console.error("[livo API] Failed to update notebook:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to update note" },
-      { status: 500 },
+      { error: error?.message || "Failed to update notebook" },
+      { status: error?.message?.includes("already exists") ? 409 : 500 },
     );
   }
 }
@@ -72,25 +75,23 @@ export async function DELETE(
   try {
     const user = await getCurrentUser(req);
     const { id } = await params;
-    const { searchParams } = new URL(req.url);
-    const permanent = searchParams.get("permanent") === "true";
 
-    const success = await deleteNote(user.id, id, permanent);
+    const success = await deleteNotebook(user.id, id);
     if (!success) {
       return NextResponse.json(
-        { error: "Note not found or unauthorized" },
+        { error: "Notebook not found or unauthorized" },
         { status: 404 },
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: permanent ? "Note permanently deleted" : "Note moved to trash",
+      message: "Notebook deleted and notes unassigned safely",
     });
   } catch (error: any) {
-    console.error("[livo API] Failed to delete note:", error);
+    console.error("[livo API] Failed to delete notebook:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to delete note" },
+      { error: error?.message || "Failed to delete notebook" },
       { status: 500 },
     );
   }

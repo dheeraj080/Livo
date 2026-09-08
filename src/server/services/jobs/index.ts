@@ -1,7 +1,7 @@
-import Redis from 'ioredis';
-import { Queue } from 'bullmq';
-import { config } from '@/src/server/lib/config';
-import type { ServiceHealthStatus } from '@/src/types';
+import Redis from "ioredis";
+import { Queue } from "bullmq";
+import { config } from "@/src/server/lib/config";
+import type { ServiceHealthStatus } from "@/src/types";
 
 let redisClient: Redis | null = null;
 let aiJobQueue: Queue | null = null;
@@ -30,8 +30,8 @@ export function getRedisClient(): Redis | null {
       });
     }
 
-    redisClient.on('error', (err) => {
-      console.warn('[livo Redis] Connection notice:', err.message);
+    redisClient.on("error", (err) => {
+      console.warn("[livo Redis] Connection notice:", err.message);
     });
   }
 
@@ -43,7 +43,7 @@ export function getAIJobQueue(): Queue | null {
   if (!aiJobQueue) {
     const connection = getRedisClient();
     if (connection) {
-      aiJobQueue = new Queue('livo-ai-processing', { connection });
+      aiJobQueue = new Queue("livo-ai-processing", { connection });
     }
   }
   return aiJobQueue;
@@ -52,10 +52,10 @@ export function getAIJobQueue(): Queue | null {
 export async function checkRedisHealth(): Promise<ServiceHealthStatus> {
   if (!config.redis.isConfigured) {
     return {
-      name: 'Redis + BullMQ',
+      name: "Redis + BullMQ",
       configured: false,
-      status: 'unconfigured',
-      message: 'REDIS_URL or REDIS_HOST environment variables are not set',
+      status: "unconfigured",
+      message: "REDIS_URL or REDIS_HOST environment variables are not set",
     };
   }
 
@@ -64,57 +64,57 @@ export async function checkRedisHealth(): Promise<ServiceHealthStatus> {
 
   if (!client) {
     return {
-      name: 'Redis + BullMQ',
+      name: "Redis + BullMQ",
       configured: true,
-      status: 'disconnected',
-      message: 'Failed to initialize Redis client',
+      status: "disconnected",
+      message: "Failed to initialize Redis client",
     };
   }
 
   try {
-    if (client.status !== 'ready' && client.status !== 'connecting') {
+    if (client.status !== "ready" && client.status !== "connecting") {
       await client.connect();
     }
     const pong = await client.ping();
     const latencyMs = Date.now() - startTime;
 
-    if (pong === 'PONG') {
+    if (pong === "PONG") {
       return {
-        name: 'Redis + BullMQ',
+        name: "Redis + BullMQ",
         configured: true,
-        status: 'connected',
+        status: "connected",
         latencyMs,
         message: `Connected successfully (${latencyMs}ms)`,
       };
     }
 
     return {
-      name: 'Redis + BullMQ',
+      name: "Redis + BullMQ",
       configured: true,
-      status: 'disconnected',
+      status: "disconnected",
       message: `Unexpected Redis response: ${pong}`,
     };
   } catch (error: any) {
     return {
-      name: 'Redis + BullMQ',
+      name: "Redis + BullMQ",
       configured: true,
-      status: 'error',
-      message: error?.message || 'Redis connection error',
+      status: "error",
+      message: error?.message || "Redis connection error",
     };
   }
 }
 
 // Export BullMQ indexing queue & worker
-export * from './note-indexing.queue';
-export * from './note-indexing.worker';
+export * from "./note-indexing.queue";
+export * from "./note-indexing.worker";
 
 // Export BullMQ document processing queue & worker
-export * from './document-processing.queue';
-export * from './document-processing.worker';
+export * from "./document-processing.queue";
+export * from "./document-processing.worker";
 
 // Auto-initialize workers if Redis is configured
-import { getOrCreateNoteIndexingWorker } from './note-indexing.worker';
-import { getOrCreateDocumentProcessingWorker } from './document-processing.worker';
+import { getOrCreateNoteIndexingWorker } from "./note-indexing.worker";
+import { getOrCreateDocumentProcessingWorker } from "./document-processing.worker";
 
 try {
   getOrCreateNoteIndexingWorker();
@@ -122,4 +122,3 @@ try {
 } catch (e) {
   // worker init deferred
 }
-

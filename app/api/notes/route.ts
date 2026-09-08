@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 import {
   listNotes,
   createNote,
   createNoteSchema,
   listNotesQuerySchema,
-} from '@/src/server/modules/notes';
-import { getCurrentUser } from '@/src/server/modules/auth';
+} from "@/src/server/modules/notes";
+import { getCurrentUser } from "@/src/server/modules/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,28 +13,33 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
 
     const queryParsed = listNotesQuerySchema.safeParse({
-      notebookId: searchParams.get('notebookId') || undefined,
-      tagId: searchParams.get('tagId') || undefined,
-      isTrashed: searchParams.get('isTrashed') === 'true',
-      isPinned: searchParams.has('isPinned') ? searchParams.get('isPinned') === 'true' : undefined,
-      limit: searchParams.get('limit') || undefined,
-      offset: searchParams.get('offset') || undefined,
+      notebookId: searchParams.get("notebookId") || undefined,
+      tagId: searchParams.get("tagId") || undefined,
+      isTrashed: searchParams.get("isTrashed") === "true",
+      isPinned: searchParams.has("isPinned")
+        ? searchParams.get("isPinned") === "true"
+        : undefined,
+      limit: searchParams.get("limit") || undefined,
+      offset: searchParams.get("offset") || undefined,
     });
 
     if (!queryParsed.success) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: queryParsed.error.format() },
-        { status: 400 }
+        {
+          error: "Invalid query parameters",
+          details: queryParsed.error.format(),
+        },
+        { status: 400 },
       );
     }
 
     const notes = await listNotes(user.id, queryParsed.data);
     return NextResponse.json({ notes });
   } catch (error: any) {
-    console.error('[livo API] Failed to fetch notes:', error);
+    console.error("[livo API] Failed to fetch notes:", error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to list notes' },
-      { status: 500 }
+      { error: error?.message || "Failed to list notes" },
+      { status: 500 },
     );
   }
 }
@@ -47,18 +52,18 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Invalid note payload', details: parsed.error.format() },
-        { status: 400 }
+        { error: "Invalid note payload", details: parsed.error.format() },
+        { status: 400 },
       );
     }
 
     const newNote = await createNote(user.id, parsed.data);
     return NextResponse.json(newNote, { status: 201 });
   } catch (error: any) {
-    console.error('[livo API] Failed to create note:', error);
+    console.error("[livo API] Failed to create note:", error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to create note' },
-      { status: 500 }
+      { error: error?.message || "Failed to create note" },
+      { status: 500 },
     );
   }
 }

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
+import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
@@ -42,11 +43,17 @@ import {
   AlertCircle,
   Check,
   X,
+  Highlighter,
+  Eraser,
+  Paperclip,
+  MoreHorizontal,
 } from 'lucide-react';
 import type { Attachment } from '@/src/types';
+import { FloatingFormatToolbar } from './FloatingFormatToolbar';
 
 export interface TiptapEditorProps {
   noteId?: string;
+  noteTitle?: string;
   contentJson?: Record<string, any> | null;
   initialHtml?: string;
   onChange?: (json: Record<string, any>, plainText: string, html: string) => void;
@@ -59,6 +66,7 @@ export interface TiptapEditorProps {
 
 export function TiptapEditor({
   noteId,
+  noteTitle,
   contentJson,
   initialHtml,
   onChange,
@@ -79,7 +87,11 @@ export function TiptapEditor({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [tableMenuOpen, setTableMenuOpen] = useState(false);
+  const [overflowOpen, setOverflowOpen] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const generalFileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const overflowRef = React.useRef<HTMLDivElement | null>(null);
 
   const uploadAndInsertImageRef = React.useRef<
     (file: File, targetPos?: number) => Promise<void>
@@ -98,6 +110,12 @@ export function TiptapEditor({
         },
       }),
       Underline,
+      Highlight.configure({
+        multicolor: false,
+        HTMLAttributes: {
+          class: 'bg-amber-200/80 px-1 py-0.5 rounded text-stone-900',
+        },
+      }),
       Link.configure({
         openOnClick: false,
         autolink: true,
@@ -197,6 +215,81 @@ export function TiptapEditor({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSaveManual]);
+
+  // Handle outside clicks and Escape key to close overflow menu and dialogs
+  useEffect(() => {
+    function handleGlobalKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setOverflowOpen(false);
+        setLinkModalOpen(false);
+        setImageModalOpen(false);
+        setTableMenuOpen(false);
+      }
+    }
+
+    function handleClickOutside(e: MouseEvent) {
+      if (overflowRef.current && !overflowRef.current.contains(e.target as Node)) {
+        setOverflowOpen(false);
+      }
+    }
+
+    if (overflowOpen) {
+      window.addEventListener('keydown', handleGlobalKeyDown);
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [overflowOpen]);
+
+  const handleGeneralFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !noteId) return;
+
+    if (file.size > 25 * 1024 * 1024) {
+      setUploadError('File exceeds 25MB limit.');
+      return;
+    }
+
+    setIsUploadingFile(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`/api/notes/${noteId}/attachments`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const att: Attachment = await res.json();
+        onAttachmentAdded?.(att);
+        const displayUrl =
+          att.url || att.publicUrl || att.presignedUrl || `/api/attachments/${att.id}/download`;
+
+        if (editor) {
+          if (att.mimeType?.startsWith('image/')) {
+            editor.chain().focus().setImage({ src: displayUrl, alt: att.filename }).run();
+          } else {
+            editor
+              .chain()
+              .focus()
+              .insertContent(
+                ` <a href="${displayUrl}" target="_blank" rel="noopener noreferrer">📎 ${att.filename}</a> `
+              )
+              .run();
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[TiptapEditor] General file upload error:', err);
+    } finally {
+      setIsUploadingFile(false);
+      if (generalFileInputRef.current) generalFileInputRef.current.value = '';
+      setOverflowOpen(false);
+    }
+  };
 
   const handleSetLink = useCallback(() => {
     if (!editor) return;
@@ -354,356 +447,503 @@ export function TiptapEditor({
 
   return (
     <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
-      {/* Editor Formatting Ribbon */}
-      <div className="flex items-center justify-between border-b border-stone-200 px-4 py-2 bg-stone-50/75 shrink-0 flex-wrap gap-1">
-        <div className="flex items-center gap-0.5 flex-wrap">
-          {/* Bold */}
-          <button
-            id="editor-btn-bold"
-            type="button"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('bold') ? 'bg-stone-200 text-stone-900 font-bold' : ''
-            }`}
-            title="Bold (Ctrl+B)"
-          >
-            <Bold className="w-4 h-4" />
-          </button>
-
-          {/* Italic */}
-          <button
-            id="editor-btn-italic"
-            type="button"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('italic') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Italic (Ctrl+I)"
-          >
-            <Italic className="w-4 h-4" />
-          </button>
-
-          {/* Underline */}
-          <button
-            id="editor-btn-underline"
-            type="button"
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('underline') ? 'bg-stone-200 text-stone-900 font-bold' : ''
-            }`}
-            title="Underline (Ctrl+U)"
-          >
-            <UnderlineIcon className="w-4 h-4" />
-          </button>
-
-          {/* Strike */}
-          <button
-            id="editor-btn-strike"
-            type="button"
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('strike') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Strikethrough"
-          >
-            <Strikethrough className="w-4 h-4" />
-          </button>
-
-          {/* Inline Code */}
-          <button
-            id="editor-btn-code"
-            type="button"
-            onClick={() => editor.chain().focus().toggleCode().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('code') ? 'bg-stone-200 text-stone-900 font-mono' : ''
-            }`}
-            title="Inline Code"
-          >
-            <Code className="w-4 h-4" />
-          </button>
-
-          <div className="w-[1px] h-4 bg-stone-300 mx-1" />
-
-          {/* Headings */}
-          <button
-            id="editor-btn-h1"
-            type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('heading', { level: 1 }) ? 'bg-stone-200 text-stone-900 font-bold' : ''
-            }`}
-            title="Heading 1"
-          >
-            <Heading1 className="w-4 h-4" />
-          </button>
-
-          <button
-            id="editor-btn-h2"
-            type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('heading', { level: 2 }) ? 'bg-stone-200 text-stone-900 font-bold' : ''
-            }`}
-            title="Heading 2"
-          >
-            <Heading2 className="w-4 h-4" />
-          </button>
-
-          <button
-            id="editor-btn-h3"
-            type="button"
-            onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('heading', { level: 3 }) ? 'bg-stone-200 text-stone-900 font-bold' : ''
-            }`}
-            title="Heading 3"
-          >
-            <Heading3 className="w-4 h-4" />
-          </button>
-
-          <div className="w-[1px] h-4 bg-stone-300 mx-1" />
-
-          {/* Bullet List */}
-          <button
-            id="editor-btn-bullet"
-            type="button"
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('bulletList') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Bullet List"
-          >
-            <List className="w-4 h-4" />
-          </button>
-
-          {/* Ordered List */}
-          <button
-            id="editor-btn-ordered"
-            type="button"
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('orderedList') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Numbered List"
-          >
-            <ListOrdered className="w-4 h-4" />
-          </button>
-
-          {/* Task List / Checklist */}
-          <button
-            id="editor-btn-tasklist"
-            type="button"
-            onClick={() => editor.chain().focus().toggleTaskList().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('taskList') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Task List / Checkbox"
-          >
-            <CheckSquare className="w-4 h-4" />
-          </button>
-
-          <div className="w-[1px] h-4 bg-stone-300 mx-1" />
-
-          {/* Blockquote */}
-          <button
-            id="editor-btn-quote"
-            type="button"
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('blockquote') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Quote"
-          >
-            <Quote className="w-4 h-4" />
-          </button>
-
-          {/* Code Block */}
-          <button
-            id="editor-btn-codeblock"
-            type="button"
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('codeBlock') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title="Code Block"
-          >
-            <FileCode className="w-4 h-4" />
-          </button>
-
-          {/* Horizontal Rule */}
-          <button
-            id="editor-btn-hr"
-            type="button"
-            onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            className="p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors"
-            title="Divider Line"
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-
-          <div className="w-[1px] h-4 bg-stone-300 mx-1" />
-
-          {/* Link */}
-          <button
-            id="editor-btn-link"
-            type="button"
-            onClick={() => {
-              if (editor.isActive('link')) {
-                editor.chain().focus().unsetLink().run();
-              } else {
-                setLinkUrl(editor.getAttributes('link').href || '');
-                setLinkModalOpen(true);
-              }
-            }}
-            className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-              editor.isActive('link') ? 'bg-stone-200 text-stone-900' : ''
-            }`}
-            title={editor.isActive('link') ? 'Remove Link' : 'Add Link'}
-          >
-            {editor.isActive('link') ? <Unlink className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
-          </button>
-
-          {/* Image */}
-          <button
-            id="editor-btn-image"
-            type="button"
-            onClick={() => setImageModalOpen(true)}
-            className="p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors"
-            title="Insert Image by URL"
-          >
-            <ImageIcon className="w-4 h-4" />
-          </button>
-
-          {/* Table */}
-          <div className="relative">
+      {/* Editor Formatting Ribbon - Two-Level Architecture */}
+      <div className="border-b border-stone-200 px-6 py-1.5 bg-stone-50/70 shrink-0">
+        <div className="max-w-[800px] w-full mx-auto flex items-center justify-between gap-1 flex-wrap">
+          {/* PRIMARY CONTROLS: B I U S   H1 H2 H3   • ☑   🔗 ✦ ··· */}
+          <div className="flex items-center gap-0.5 flex-wrap">
+            {/* 1. Character Styles: B I U S */}
             <button
-              id="editor-btn-table"
+              id="editor-btn-bold"
               type="button"
-              onClick={() => {
-                if (!isTableActive) {
-                  editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-                } else {
-                  setTableMenuOpen((prev) => !prev);
-                }
-              }}
-              className={`p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors ${
-                isTableActive ? 'bg-indigo-100 text-indigo-900' : ''
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('bold') ? 'bg-stone-200 text-stone-900 font-bold shadow-2xs' : ''
               }`}
-              title={isTableActive ? 'Table Options' : 'Insert Table (3x3)'}
+              title="Bold (⌘B / Ctrl+B)"
+              aria-label="Bold"
             >
-              <TableIcon className="w-4 h-4" />
+              <Bold className="w-4 h-4" />
             </button>
 
-            {/* Table Dropdown Menu when active inside table */}
-            {isTableActive && tableMenuOpen && (
-              <div
-                id="editor-table-menu"
-                className="absolute left-0 top-full mt-1 z-30 w-48 bg-white border border-stone-200 rounded-lg shadow-lg py-1 text-xs text-stone-700"
+            <button
+              id="editor-btn-italic"
+              type="button"
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('italic') ? 'bg-stone-200 text-stone-900 shadow-2xs' : ''
+              }`}
+              title="Italic (⌘I / Ctrl+I)"
+              aria-label="Italic"
+            >
+              <Italic className="w-4 h-4" />
+            </button>
+
+            <button
+              id="editor-btn-underline"
+              type="button"
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('underline') ? 'bg-stone-200 text-stone-900 font-bold shadow-2xs' : ''
+              }`}
+              title="Underline (⌘U / Ctrl+U)"
+              aria-label="Underline"
+            >
+              <UnderlineIcon className="w-4 h-4" />
+            </button>
+
+            <button
+              id="editor-btn-strike"
+              type="button"
+              onClick={() => editor.chain().focus().toggleStrike().run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('strike') ? 'bg-stone-200 text-stone-900 shadow-2xs' : ''
+              }`}
+              title="Strikethrough"
+              aria-label="Strikethrough"
+            >
+              <Strikethrough className="w-4 h-4" />
+            </button>
+
+            {/* Subtle separator */}
+            <div className="w-[1px] h-3.5 bg-stone-300 mx-1" aria-hidden="true" />
+
+            {/* 2. Headings: H1 H2 H3 */}
+            <button
+              id="editor-btn-h1"
+              type="button"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('heading', { level: 1 }) ? 'bg-stone-200 text-stone-900 font-bold shadow-2xs' : ''
+              }`}
+              title="Heading 1"
+              aria-label="Heading 1"
+            >
+              <Heading1 className="w-4 h-4" />
+            </button>
+
+            <button
+              id="editor-btn-h2"
+              type="button"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('heading', { level: 2 }) ? 'bg-stone-200 text-stone-900 font-bold shadow-2xs' : ''
+              }`}
+              title="Heading 2"
+              aria-label="Heading 2"
+            >
+              <Heading2 className="w-4 h-4" />
+            </button>
+
+            <button
+              id="editor-btn-h3"
+              type="button"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('heading', { level: 3 }) ? 'bg-stone-200 text-stone-900 font-bold shadow-2xs' : ''
+              }`}
+              title="Heading 3"
+              aria-label="Heading 3"
+            >
+              <Heading3 className="w-4 h-4" />
+            </button>
+
+            {/* Subtle separator */}
+            <div className="w-[1px] h-3.5 bg-stone-300 mx-1" aria-hidden="true" />
+
+            {/* 3. Lists: • ☑ */}
+            <button
+              id="editor-btn-bullet"
+              type="button"
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('bulletList') ? 'bg-stone-200 text-stone-900 shadow-2xs' : ''
+              }`}
+              title="Bullet list"
+              aria-label="Bullet list"
+            >
+              <List className="w-4 h-4" />
+            </button>
+
+            <button
+              id="editor-btn-tasklist"
+              type="button"
+              onClick={() => editor.chain().focus().toggleTaskList().run()}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('taskList') ? 'bg-stone-200 text-stone-900 shadow-2xs' : ''
+              }`}
+              title="Task checklist"
+              aria-label="Task checklist"
+            >
+              <CheckSquare className="w-4 h-4" />
+            </button>
+
+            {/* Subtle separator */}
+            <div className="w-[1px] h-3.5 bg-stone-300 mx-1" aria-hidden="true" />
+
+            {/* 4. Link & AI: 🔗 ✦ */}
+            <button
+              id="editor-btn-link"
+              type="button"
+              onClick={() => {
+                if (editor.isActive('link')) {
+                  editor.chain().focus().unsetLink().run();
+                } else {
+                  setLinkUrl(editor.getAttributes('link').href || '');
+                  setLinkModalOpen(true);
+                }
+              }}
+              className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                editor.isActive('link') ? 'bg-stone-200 text-stone-900 shadow-2xs' : ''
+              }`}
+              title={editor.isActive('link') ? 'Remove link' : 'Insert link (⌘K / Ctrl+K)'}
+              aria-label={editor.isActive('link') ? 'Remove link' : 'Insert link'}
+            >
+              {editor.isActive('link') ? <Unlink className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+            </button>
+
+            {/* Existing Contextual AI Entry Point */}
+            <button
+              id="editor-btn-ai"
+              type="button"
+              onClick={() => onOpenAI?.()}
+              className="p-1.5 rounded transition-colors cursor-pointer text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50"
+              title="✦ AI Actions"
+              aria-label="✦ AI Actions"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+
+            {/* 5. Overflow Menu: ··· */}
+            <div className="relative inline-block" ref={overflowRef}>
+              <button
+                id="editor-btn-overflow"
+                type="button"
+                onClick={() => setOverflowOpen((prev) => !prev)}
+                aria-haspopup="menu"
+                aria-expanded={overflowOpen}
+                className={`p-1.5 rounded transition-colors cursor-pointer text-stone-700 hover:bg-stone-200/80 ${
+                  overflowOpen ? 'bg-stone-200 text-stone-900' : ''
+                }`}
+                title="More formatting options (Overflow menu)"
+                aria-label="More formatting options"
               >
-                <button
-                  type="button"
-                  onClick={() => {
-                    editor.chain().focus().addRowAfter().run();
-                    setTableMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-stone-100 flex items-center gap-2"
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+
+              {/* OVERFLOW MENU DROPDOWN */}
+              {overflowOpen && (
+                <div
+                  id="editor-overflow-menu"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="editor-btn-overflow"
+                  className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-40 w-60 bg-white border border-stone-200 rounded-xl shadow-xl py-1.5 text-xs text-stone-700 animate-in fade-in zoom-in-95"
                 >
-                  <Plus className="w-3.5 h-3.5 text-stone-500" />
-                  <span>Add Row Below</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    editor.chain().focus().addColumnAfter().run();
-                    setTableMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-stone-100 flex items-center gap-2"
-                >
-                  <Plus className="w-3.5 h-3.5 text-stone-500" />
-                  <span>Add Column Right</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    editor.chain().focus().deleteRow().run();
-                    setTableMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-stone-100 flex items-center gap-2 text-red-600"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete Current Row</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    editor.chain().focus().deleteColumn().run();
-                    setTableMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-stone-100 flex items-center gap-2 text-red-600"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete Current Column</span>
-                </button>
-                <div className="border-t border-stone-200 my-1" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    editor.chain().focus().deleteTable().run();
-                    setTableMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-red-50 flex items-center gap-2 text-red-600 font-medium"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete Entire Table</span>
-                </button>
-              </div>
-            )}
+                  <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                    Blocks & Text
+                  </div>
+
+                  {/* Code Block */}
+                  <button
+                    id="editor-overflow-codeblock"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().toggleCodeBlock().run();
+                      setOverflowOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer ${
+                      editor.isActive('codeBlock') ? 'bg-stone-100 text-stone-900 font-medium' : ''
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <FileCode className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Code block</span>
+                    </span>
+                    {editor.isActive('codeBlock') && <Check className="w-3.5 h-3.5 text-indigo-600" />}
+                  </button>
+
+                  {/* Blockquote */}
+                  <button
+                    id="editor-overflow-blockquote"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().toggleBlockquote().run();
+                      setOverflowOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer ${
+                      editor.isActive('blockquote') ? 'bg-stone-100 text-stone-900 font-medium' : ''
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Quote className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Blockquote</span>
+                    </span>
+                    {editor.isActive('blockquote') && <Check className="w-3.5 h-3.5 text-indigo-600" />}
+                  </button>
+
+                  {/* Highlight */}
+                  <button
+                    id="editor-overflow-highlight"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().toggleHighlight().run();
+                      setOverflowOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer ${
+                      editor.isActive('highlight') ? 'bg-amber-50 text-amber-900 font-medium' : ''
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Highlighter className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Highlight text</span>
+                    </span>
+                    {editor.isActive('highlight') && <Check className="w-3.5 h-3.5 text-amber-600" />}
+                  </button>
+
+                  {/* Inline Code */}
+                  <button
+                    id="editor-overflow-code"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().toggleCode().run();
+                      setOverflowOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer ${
+                      editor.isActive('code') ? 'bg-stone-100 text-stone-900 font-medium' : ''
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Code className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Inline code</span>
+                    </span>
+                    {editor.isActive('code') && <Check className="w-3.5 h-3.5 text-indigo-600" />}
+                  </button>
+
+                  {/* Numbered List */}
+                  <button
+                    id="editor-overflow-ordered"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().toggleOrderedList().run();
+                      setOverflowOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer ${
+                      editor.isActive('orderedList') ? 'bg-stone-100 text-stone-900 font-medium' : ''
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <ListOrdered className="w-3.5 h-3.5 text-stone-500" />
+                      <span>Numbered list</span>
+                    </span>
+                    {editor.isActive('orderedList') && <Check className="w-3.5 h-3.5 text-indigo-600" />}
+                  </button>
+
+                  <div className="h-[1px] bg-stone-100 my-1" />
+
+                  {/* Insert Section */}
+                  <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                    Insert
+                  </div>
+
+                  {/* Image */}
+                  <button
+                    id="editor-overflow-image"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setOverflowOpen(false);
+                      setImageModalOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Insert image</span>
+                  </button>
+
+                  {/* File */}
+                  <button
+                    id="editor-overflow-file"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      generalFileInputRef.current?.click();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer"
+                  >
+                    <Paperclip className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Attach file {isUploadingFile ? '(Uploading...)' : ''}</span>
+                  </button>
+
+                  {/* Table */}
+                  <button
+                    id="editor-overflow-table"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      if (!isTableActive) {
+                        editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+                        setOverflowOpen(false);
+                      } else {
+                        setTableMenuOpen((prev) => !prev);
+                      }
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer ${
+                      isTableActive ? 'bg-indigo-50 text-indigo-900 font-medium' : ''
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <TableIcon className="w-3.5 h-3.5 text-stone-500" />
+                      <span>{isTableActive ? 'Table options...' : 'Insert table (3×3)'}</span>
+                    </span>
+                    {isTableActive && <span className="text-[10px] text-indigo-600 font-medium">Active</span>}
+                  </button>
+
+                  {/* Table Submenu if inside a table */}
+                  {isTableActive && tableMenuOpen && (
+                    <div className="pl-6 pr-2 py-1 bg-stone-50/80 border-y border-stone-200 text-[11px] space-y-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().addRowAfter().run();
+                          setOverflowOpen(false);
+                        }}
+                        className="w-full text-left py-1 px-2 hover:bg-stone-200/60 rounded flex items-center gap-1.5"
+                      >
+                        <Plus className="w-3 h-3 text-stone-500" />
+                        <span>Add row below</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().addColumnAfter().run();
+                          setOverflowOpen(false);
+                        }}
+                        className="w-full text-left py-1 px-2 hover:bg-stone-200/60 rounded flex items-center gap-1.5"
+                      >
+                        <Plus className="w-3 h-3 text-stone-500" />
+                        <span>Add column right</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().deleteRow().run();
+                          setOverflowOpen(false);
+                        }}
+                        className="w-full text-left py-1 px-2 hover:bg-rose-50 text-rose-600 rounded flex items-center gap-1.5"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete row</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().deleteColumn().run();
+                          setOverflowOpen(false);
+                        }}
+                        className="w-full text-left py-1 px-2 hover:bg-rose-50 text-rose-600 rounded flex items-center gap-1.5"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete column</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().deleteTable().run();
+                          setOverflowOpen(false);
+                        }}
+                        className="w-full text-left py-1 px-2 hover:bg-rose-50 text-rose-600 font-medium rounded flex items-center gap-1.5"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete table</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Horizontal Divider */}
+                  <button
+                    id="editor-overflow-hr"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().setHorizontalRule().run();
+                      setOverflowOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer"
+                  >
+                    <Minus className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Divider line</span>
+                  </button>
+
+                  <div className="h-[1px] bg-stone-100 my-1" />
+
+                  {/* Clear formatting */}
+                  <button
+                    id="editor-overflow-clear"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor.chain().focus().unsetAllMarks().clearNodes().run();
+                      setOverflowOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition-colors text-left cursor-pointer"
+                    title="Clear formatting"
+                  >
+                    <Eraser className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Clear formatting</span>
+                  </button>
+
+                  {/* Undo & Redo */}
+                  <div className="flex items-center gap-1 px-3 py-1 pt-1.5 border-t border-stone-100 mt-1">
+                    <button
+                      id="editor-overflow-undo"
+                      type="button"
+                      disabled={!editor.can().undo()}
+                      onClick={() => {
+                        editor.chain().focus().undo().run();
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-600 disabled:opacity-40 text-xs transition-colors cursor-pointer"
+                      title="Undo (⌘Z / Ctrl+Z)"
+                      aria-label="Undo"
+                    >
+                      <Undo className="w-3 h-3" />
+                      <span>Undo</span>
+                    </button>
+                    <button
+                      id="editor-overflow-redo"
+                      type="button"
+                      disabled={!editor.can().redo()}
+                      onClick={() => {
+                        editor.chain().focus().redo().run();
+                      }}
+                      className="flex-1 flex items-center justify-center gap-1 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-600 disabled:opacity-40 text-xs transition-colors cursor-pointer"
+                      title="Redo (⌘Y / Ctrl+Y)"
+                      aria-label="Redo"
+                    >
+                      <Redo className="w-3 h-3" />
+                      <span>Redo</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-
-          <div className="w-[1px] h-4 bg-stone-300 mx-1" />
-
-          {/* Undo / Redo */}
-          <button
-            id="editor-btn-undo"
-            type="button"
-            onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
-            className="p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors disabled:opacity-40"
-            title="Undo (Ctrl+Z)"
-          >
-            <Undo className="w-4 h-4" />
-          </button>
-          <button
-            id="editor-btn-redo"
-            type="button"
-            onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
-            className="p-1.5 rounded text-stone-700 hover:bg-stone-200/80 transition-colors disabled:opacity-40"
-            title="Redo (Ctrl+Y)"
-          >
-            <Redo className="w-4 h-4" />
-          </button>
         </div>
-
-        {onOpenAI && (
-          <button
-            id="editor-btn-ai-assist"
-            type="button"
-            onClick={onOpenAI}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-            <span>AI Actions</span>
-          </button>
-        )}
       </div>
 
       {/* Editor Content Canvas */}
-      <div className="flex-1 overflow-y-auto px-8 py-6 max-w-4xl w-full mx-auto">
+      <div className="flex-1 overflow-y-auto px-8 py-6 max-w-[800px] w-full mx-auto relative">
         <EditorContent
           editor={editor}
           className="prose prose-stone max-w-none focus:outline-hidden min-h-[420px] leading-relaxed text-stone-800"
         />
+        {/* Floating formatting toolbar appearing on text selection */}
+        <FloatingFormatToolbar editor={editor} noteTitle={noteTitle} />
       </div>
 
       {/* Footer Metrics */}
@@ -722,9 +962,7 @@ export function TiptapEditor({
           )}
         </div>
         <div className="flex items-center gap-2 text-[11px] text-stone-400">
-          <span>Canonical: Tiptap JSON</span>
-          <span>•</span>
-          <span>Ctrl+S to save</span>
+          <span>⌘S / Ctrl+S to save</span>
         </div>
       </div>
 
@@ -1000,8 +1238,16 @@ export function TiptapEditor({
         </div>
       )}
 
+      {/* Hidden file input for general file attachments from overflow menu */}
+      <input
+        ref={generalFileInputRef}
+        type="file"
+        onChange={handleGeneralFileUpload}
+        className="hidden"
+      />
+
       {/* Background Upload Notification Toast */}
-      {isUploading && !imageModalOpen && (
+      {(isUploading || isUploadingFile) && !imageModalOpen && (
         <div className="fixed bottom-6 right-6 z-50 bg-stone-900/90 text-white text-xs px-3.5 py-2.5 rounded-xl shadow-xl flex items-center gap-2.5 backdrop-blur-xs border border-stone-800 animate-in fade-in slide-in-from-bottom-2">
           <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
           <div className="flex flex-col">

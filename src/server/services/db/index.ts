@@ -1,9 +1,9 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
-import { config } from '@/src/server/lib/config';
-import * as schema from './schema';
-import { runDatabaseMigrations } from './migrate';
-import type { ServiceHealthStatus } from '@/src/types';
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { config } from "@/src/server/lib/config";
+import * as schema from "./schema";
+import { runDatabaseMigrations } from "./migrate";
+import type { ServiceHealthStatus } from "@/src/types";
 
 let pool: Pool | null = null;
 let dbInstance: ReturnType<typeof drizzle<typeof schema>> | null = null;
@@ -22,8 +22,11 @@ export function getDatabasePool(): Pool | null {
       connectionTimeoutMillis: 5000,
     });
 
-    pool.on('error', (err) => {
-      console.error('[livo DB] Unexpected error on idle PostgreSQL client', err);
+    pool.on("error", (err) => {
+      console.error(
+        "[livo DB] Unexpected error on idle PostgreSQL client",
+        err,
+      );
     });
   }
 
@@ -38,7 +41,10 @@ export function getDatabase() {
       if (!migrationInitiated) {
         migrationInitiated = true;
         runDatabaseMigrations().catch((err) => {
-          console.warn('[livo DB] Auto migration execution notice:', err.message);
+          console.warn(
+            "[livo DB] Auto migration execution notice:",
+            err.message,
+          );
         });
       }
     }
@@ -49,10 +55,10 @@ export function getDatabase() {
 export async function checkDatabaseHealth(): Promise<ServiceHealthStatus> {
   if (!config.postgres.isConfigured || !config.postgres.connectionString) {
     return {
-      name: 'PostgreSQL',
+      name: "PostgreSQL",
       configured: false,
-      status: 'unconfigured',
-      message: 'DATABASE_URL environment variable is not set',
+      status: "unconfigured",
+      message: "DATABASE_URL environment variable is not set",
     };
   }
 
@@ -61,22 +67,22 @@ export async function checkDatabaseHealth(): Promise<ServiceHealthStatus> {
 
   if (!testPool) {
     return {
-      name: 'PostgreSQL',
+      name: "PostgreSQL",
       configured: true,
-      status: 'disconnected',
-      message: 'Unable to initialize connection pool',
+      status: "disconnected",
+      message: "Unable to initialize connection pool",
     };
   }
 
   try {
     const client = await testPool.connect();
     try {
-      await client.query('SELECT 1 as health_check');
+      await client.query("SELECT 1 as health_check");
       const latencyMs = Date.now() - startTime;
       return {
-        name: 'PostgreSQL',
+        name: "PostgreSQL",
         configured: true,
-        status: 'connected',
+        status: "connected",
         latencyMs,
         message: `Connected successfully (${latencyMs}ms)`,
       };
@@ -85,10 +91,10 @@ export async function checkDatabaseHealth(): Promise<ServiceHealthStatus> {
     }
   } catch (error: any) {
     return {
-      name: 'PostgreSQL',
+      name: "PostgreSQL",
       configured: true,
-      status: 'error',
-      message: error?.message || 'Database connection error',
+      status: "error",
+      message: error?.message || "Database connection error",
     };
   }
 }

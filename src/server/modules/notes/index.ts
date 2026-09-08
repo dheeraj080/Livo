@@ -282,11 +282,19 @@ export async function updateNote(
 }
 
 /**
- * Soft delete a note (sets deleted_at = NOW()).
+ * Delete a note. By default soft deletes (sets deleted_at = NOW()).
+ * If permanent is true, permanently removes from database.
  * Removes the note from the active search index via BullMQ job.
  */
-export async function deleteNote(userId: string, id: string): Promise<boolean> {
-  const success = await notesRepository.softDelete(userId, id);
+export async function deleteNote(
+  userId: string,
+  id: string,
+  permanent = false
+): Promise<boolean> {
+  const success = permanent
+    ? await notesRepository.hardDelete(userId, id)
+    : await notesRepository.softDelete(userId, id);
+
   if (success) {
     queueNoteIndexingJob({
       action: 'delete',
