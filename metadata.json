@@ -1,0 +1,6 @@
+{
+  "name": "livo",
+  "description": "AI-powered personal knowledge management application inspired by Evernote and Notion.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

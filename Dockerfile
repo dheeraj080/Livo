@@ -1,38 +1,63 @@
-# ---- build stage ----
-FROM maven:3-eclipse-temurin-25 AS builder
+# syntax=docker/dockerfile:1
+
+# ============================================================
+# 1. Dependencies
+# ============================================================
+FROM node:22-alpine AS deps
+
 WORKDIR /app
 
-# Cache deps layer (unchanged from yours — already optimal)
-COPY pom.xml .
-RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
+COPY package.json package-lock.json* ./
 
-# Parallel build threads shave time on multi-module projects
-COPY src ./src
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn package -Dmaven.test.skip=true -B -T1C
+RUN npm ci
 
-# Extract Spring Boot layertools — splits the fat jar into 4 ordered layers
-RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
 
-# ---- runtime stage ----
-FROM eclipse-temurin:25-jre-alpine AS runtime
+# ============================================================
+# 2. Build
+# ============================================================
+FROM node:22-alpine AS builder
+
 WORKDIR /app
 
-# Ensure we have a system group/users
-RUN addgroup -S spring && adduser -S spring -G spring
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copying layers - explicitly keeping the folder structure helps JarLauncher
-COPY --from=builder --chown=spring:spring /app/target/extracted/dependencies/ ./
-COPY --from=builder --chown=spring:spring /app/target/extracted/spring-boot-loader/ ./
-COPY --from=builder --chown=spring:spring /app/target/extracted/snapshot-dependencies/ ./
-COPY --from=builder --chown=spring:spring /app/target/extracted/application/ ./
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-USER spring:spring
+# Ensure public exists so the production COPY never fails
+RUN mkdir -p public
 
-# Standard Spring Boot port is 8080; 4005 is specific to your app, which is fine.
-EXPOSE 2000
+RUN npm run build
 
-ENTRYPOINT ["java", \
-  "-XX:TieredStopAtLevel=1", \
-  "-XX:+UseContainerSupport", \
-  "org.springframework.boot.loader.launch.JarLauncher"]
+
+# ============================================================
+# 3. Production
+# ============================================================
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
+# Static/public files
+COPY --from=builder /app/public ./public
+
+# Next.js standalone server
+COPY --from=builder --chown=nextjs:nodejs \
+    /app/.next/standalone ./
+
+COPY --from=builder --chown=nextjs:nodejs \
+    /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
