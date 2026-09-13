@@ -24,7 +24,7 @@ export function Navbar({ onGetStarted }: NavbarProps) {
     { label: 'Features', href: '#features', external: false },
     { label: 'Documentation', href: '#docs', external: false },
     { label: 'API', href: '#api', external: false },
-    { label: 'GitHub', href: 'https://github.com/dheeraj080/Livo', external: true },
+    { label: 'GitHub', href: 'https://github.com/dheeraj080/livo', external: true },
   ];
 
   return (

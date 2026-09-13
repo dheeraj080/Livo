@@ -28,7 +28,7 @@ export function Footer({ onGetStarted }: FooterProps) {
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
-                href="https://github.com/dheeraj080/Livo"
+                href="https://github.com/dheeraj080/livo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-full bg-[#121214] border border-zinc-800 text-zinc-300 hover:text-white hover:bg-[#18181b] transition-colors"
@@ -119,7 +119,7 @@ export function Footer({ onGetStarted }: FooterProps) {
             <ul className="space-y-2 text-xs">
               <li>
                 <a
-                  href="https://github.com/dheeraj080/Livo"
+                  href="https://github.com/dheeraj080/livo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors inline-flex items-center gap-1"

@@ -39,7 +39,7 @@ export function FinalCTA({ onGetStarted }: FinalCTAProps) {
           </button>
 
           <a
-            href="https://github.com/dheeraj080/Livo"
+            href="https://github.com/dheeraj080/livo"
             target="_blank"
             rel="noopener noreferrer"
             id="final-cta-github-btn"

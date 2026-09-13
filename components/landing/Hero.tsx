@@ -37,16 +37,6 @@ export function Hero({ onGetStarted }: HeroProps) {
       <div className="pointer-events-none absolute left-1/2 top-[55%] h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-white/[0.015] blur-[160px]" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Eyebrow */}
-        <div className="mb-6 flex justify-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1.5 backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
-
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-300 sm:text-xs">
-              SELF-HOSTED AI KNOWLEDGE PLATFORM
-            </span>
-          </div>
-        </div>
 
         {/* Headline & Value Proposition */}
         <div className="mx-auto max-w-4xl space-y-6 text-center">
@@ -77,7 +67,7 @@ export function Hero({ onGetStarted }: HeroProps) {
             </button>
 
             <a
-              href="https://github.com/dheeraj080/Livo"
+              href="https://github.com/dheeraj080/livo"
               target="_blank"
               rel="noopener noreferrer"
               id="hero-github-btn"

@@ -21,7 +21,7 @@ export function DeveloperSection() {
   const [activeApiTab, setActiveApiTab] = useState<'createNote' | 'hybridSearch' | 'aiQuery'>('createNote');
   const [activeModule, setActiveModule] = useState<string | null>(null);
 
-  const cloneCmd = 'git clone https://github.com/dheeraj080/Livo && cd livo && docker compose up -d';
+  const cloneCmd = 'git clone https://github.com/dheeraj080/livo && cd livo && docker compose up -d';
 
   const apiSnippets = {
     createNote: `// POST /api/v1/notes — Ingest or create note

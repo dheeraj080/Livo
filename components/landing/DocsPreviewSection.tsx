@@ -97,7 +97,7 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
                     ? envSample
                     : activeTab === 'api'
                     ? apiSample
-                    : 'git clone https://github.com/dheeraj080/Livo && cd livo && docker compose up -d';
+                    : 'git clone https://github.com/dheeraj080/livo && cd livo && docker compose up -d';
                 navigator.clipboard.writeText(text);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);

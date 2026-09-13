@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   livo:
@@ -82,7 +82,8 @@ services:
       - "9200:9200"
       - "9300:9300"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 20s
       timeout: 10s
       retries: 5
@@ -103,7 +104,11 @@ services:
       - "9000:9000"
       - "9001:9001"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:9000/minio/health/live || exit 1",
+        ]
       interval: 20s
       timeout: 10s
       retries: 5

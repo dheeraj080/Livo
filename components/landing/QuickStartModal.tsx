@@ -22,7 +22,7 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
   const steps = [
     {
       title: '1. Clone the repository',
-      command: 'git clone https://github.com/dheeraj080/Livo && cd livo',
+      command: 'git clone https://github.com/dheeraj080/livo && cd livo',
       desc: 'Get the official open-source compose configuration and default environment variables.',
     },
     {
@@ -129,7 +129,7 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <a
-            href="https://github.com/dheeraj080/Livo"
+            href="https://github.com/dheeraj080/livo"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-zinc-400 hover:text-white inline-flex items-center gap-1.5 transition-colors"

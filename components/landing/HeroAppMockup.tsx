@@ -61,7 +61,7 @@ export function HeroAppMockup() {
           </div>
 
           <span className="hidden truncate font-mono text-[11px] font-medium text-zinc-500 sm:block">
-            livo — personal vault
+            livo
           </span>
         </div>
 
@@ -70,11 +70,11 @@ export function HeroAppMockup() {
           <Search className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
 
           <span className="truncate">
-            Search your knowledge...
+            Search ...
           </span>
 
           <span className="ml-auto hidden shrink-0 rounded border border-zinc-700 bg-zinc-800 px-1.5 py-0.5 font-mono text-[9px] text-zinc-500 sm:block">
-            ⌘K
+            Ctrl + K
           </span>
         </div>
 
@@ -178,9 +178,6 @@ export function HeroAppMockup() {
 
           {/* Footer */}
           <div className="mt-8 flex items-center gap-1.5 border-t border-zinc-900 pt-3 text-[9px] text-zinc-600">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-
-            <span>Encrypted locally</span>
 
             <Settings className="ml-auto h-3.5 w-3.5" />
           </div>
@@ -426,13 +423,11 @@ export function HeroAppMockup() {
                 </div>
 
                 <span className="text-[10px] font-semibold text-zinc-200">
-                  Knowledge AI
+                  livo AI
                 </span>
               </div>
 
-              <span className="rounded bg-emerald-500/5 px-1.5 py-0.5 font-mono text-[8px] text-emerald-500">
-                GROUNDED
-              </span>
+          
             </div>
 
             {/* Conversation */}
