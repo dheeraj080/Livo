@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
-export function Navbar() {
+interface NavbarProps {
+  onGetStarted?: () => void;
+}
+
+export function Navbar({ onGetStarted }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -72,6 +76,7 @@ export function Navbar() {
           <Link
             href="/app"
             id="navbar-get-started-btn"
+            onClick={onGetStarted}
             className="bg-white text-zinc-950 text-xs sm:text-[13px] px-4 py-2 rounded-full font-semibold hover:bg-zinc-200 transition-all duration-200 ease-out shadow-sm hover:shadow hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] cursor-pointer whitespace-nowrap min-h-[36px] inline-flex items-center justify-center motion-reduce:transform-none motion-reduce:transition-none"
           >
             Get Started
@@ -115,7 +120,10 @@ export function Navbar() {
             <Link
               href="/app"
               id="mobile-nav-get-started-btn"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onGetStarted?.();
+              }}
               className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-white text-zinc-950 font-semibold text-sm hover:bg-zinc-200 transition-all duration-200 ease-out active:scale-[0.98] min-h-[44px] motion-reduce:transform-none motion-reduce:transition-none"
             >
               Get Started

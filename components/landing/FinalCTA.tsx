@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { Github, ArrowRight, Shield, Cpu, HardDrive } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 
-export function FinalCTA() {
+interface FinalCTAProps {
+  onGetStarted?: () => void;
+}
+
+export function FinalCTA({ onGetStarted }: FinalCTAProps) {
   return (
     <section id="cta" className="py-28 md:py-36 lg:py-40 bg-[#09090b] border-t border-zinc-800/50 relative overflow-hidden scroll-mt-20">
       {/* Subtle radial glow */}
@@ -29,6 +33,7 @@ export function FinalCTA() {
           <Link
             href="/app"
             id="final-cta-get-started-btn"
+            onClick={onGetStarted}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-white text-zinc-950 hover:bg-zinc-200 active:scale-[0.98] text-sm sm:text-[15px] font-semibold shadow-md transition-all duration-150 cursor-pointer min-h-[44px]"
           >
             <span>Get Started</span>

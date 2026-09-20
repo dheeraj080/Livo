@@ -20,6 +20,10 @@ export function LandingPageContent() {
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
   const isMounted = useHydrated();
 
+  const handleGetStarted = () => {
+    setIsQuickStartOpen(true);
+  };
+
   return (
     <div
       className={`min-h-screen bg-background text-foreground antialiased font-sans relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
@@ -35,12 +39,12 @@ export function LandingPageContent() {
       </div>
 
       {/* Top Navbar */}
-      <Navbar />
+      <Navbar onGetStarted={handleGetStarted} />
 
       {/* Main Content Sections */}
       <main id="main-content" className="relative">
         {/* 1. HERO */}
-        <Hero />
+        <Hero onGetStarted={handleGetStarted} />
 
         {/* 2. THE PROBLEM */}
         <ProblemSection />

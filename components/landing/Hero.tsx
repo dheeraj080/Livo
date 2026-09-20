@@ -6,7 +6,11 @@ import { Github, ArrowRight } from 'lucide-react';
 import { HeroAppMockup } from './HeroAppMockup';
 import { useHydrated } from '@/hooks/use-hydrated';
 
-export function Hero() {
+interface HeroProps {
+  onGetStarted?: () => void;
+}
+
+export function Hero({ onGetStarted }: HeroProps) {
   const mounted = useHydrated();
 
   return (
@@ -66,6 +70,7 @@ export function Hero() {
             <Link
               href="/app"
               id="hero-get-started-btn"
+              onClick={onGetStarted}
               className="inline-flex items-center justify-center gap-2 bg-white text-zinc-950 px-6 py-2.5 rounded-full text-sm sm:text-[15px] font-semibold hover:bg-zinc-200 transition-all duration-200 ease-out shadow-sm hover:shadow-md hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] cursor-pointer min-h-[44px] motion-reduce:transform-none motion-reduce:transition-none"
             >
               <span>Get Started</span>

@@ -5,9 +5,10 @@ import { Cloud, Github, Terminal, ExternalLink, Shield } from 'lucide-react';
 
 interface FooterProps {
   onOpenQuickStart?: () => void;
+  onGetStarted?: () => void;
 }
 
-export function Footer({ onOpenQuickStart }: FooterProps) {
+export function Footer({ onOpenQuickStart, onGetStarted }: FooterProps) {
   return (
     <footer id="main-footer" className="bg-[#09090b] border-t border-zinc-800/50 text-zinc-400 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -36,9 +37,9 @@ export function Footer({ onOpenQuickStart }: FooterProps) {
               >
                 <Github className="w-4 h-4" />
               </a>
-              {onOpenQuickStart && (
+              {(onOpenQuickStart || onGetStarted) && (
                 <button
-                  onClick={onOpenQuickStart}
+                  onClick={onOpenQuickStart || onGetStarted}
                   className="p-2.5 rounded-full bg-[#121214] border border-zinc-800 text-zinc-300 hover:text-white hover:bg-[#18181b] transition-colors cursor-pointer"
                   aria-label="Terminal Quickstart"
                 >
