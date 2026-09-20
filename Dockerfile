@@ -1,4 +1,4 @@
-# Multi-stage production Dockerfile for Nimbus
+# Multi-stage production Dockerfile for Livo
 # Node.js 22 Alpine base
 FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat

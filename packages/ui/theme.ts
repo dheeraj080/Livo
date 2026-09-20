@@ -19,7 +19,7 @@ const ThemeContext = createContext<ThemeContextType>({
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('nimbus_theme') as Theme | null;
+      const stored = localStorage.getItem('Livo_theme') as Theme | null;
       if (stored) return stored;
     }
     return 'dark';
@@ -34,7 +34,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.remove('light', 'dark');
     root.classList.add(resolvedTheme);
     root.setAttribute('data-theme', resolvedTheme);
-    localStorage.setItem('nimbus_theme', theme);
+    localStorage.setItem('Livo_theme', theme);
   }, [theme, resolvedTheme]);
 
   const setTheme = (newTheme: Theme) => {

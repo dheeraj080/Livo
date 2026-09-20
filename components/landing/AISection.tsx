@@ -84,7 +84,7 @@ export function AISection() {
                 <span className="w-3 h-3 rounded-full bg-zinc-700/80" />
               </div>
               <span className="text-xs sm:text-[13px] font-mono text-zinc-400 border-l border-zinc-800 pl-3">
-                nimbus / knowledge-query
+                Livo / knowledge-query
               </span>
             </div>
 

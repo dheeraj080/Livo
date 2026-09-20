@@ -22,12 +22,12 @@ export function DeveloperSection() {
   const [activeApiTab, setActiveApiTab] = useState<'createNote' | 'hybridSearch' | 'aiQuery'>('createNote');
   const [activeModule, setActiveModule] = useState<string | null>(null);
 
-  const cloneCmd = 'git clone https://github.com/nimbus-notes/nimbus.git && cd nimbus && docker compose up -d';
+  const cloneCmd = 'git clone https://github.com/dheeraj080/Livo.git && cd Livo && docker compose up -d';
 
   const apiSnippets = {
     createNote: `// POST /api/v1/notes — Ingest or create note
 curl -X POST http://localhost:3000/api/v1/notes \\
-  -H "Authorization: Bearer $NIMBUS_API_KEY" \\
+  -H "Authorization: Bearer $Livo_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "title": "Ingestion Pipeline ADR",
@@ -37,7 +37,7 @@ curl -X POST http://localhost:3000/api/v1/notes \\
   }'`,
     hybridSearch: `// POST /api/v1/search/hybrid — BM25 + Vector scoring
 curl -X POST http://localhost:3000/api/v1/search/hybrid \\
-  -H "Authorization: Bearer $NIMBUS_API_KEY" \\
+  -H "Authorization: Bearer $Livo_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "query": "what did we decide about ingestion architecture?",
@@ -47,7 +47,7 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
   }'`,
     aiQuery: `// POST /api/v1/ai/query — Grounded reasoning with citations
 curl -X POST http://localhost:3000/api/v1/ai/query \\
-  -H "Authorization: Bearer $NIMBUS_API_KEY" \\
+  -H "Authorization: Bearer $Livo_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "prompt": "Summarize our worker queue decisions",
@@ -135,7 +135,7 @@ curl -X POST http://localhost:3000/api/v1/ai/query \\
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm sm:text-base font-bold text-white font-mono">nimbus-notes/nimbus</span>
+                  <span className="text-sm sm:text-base font-bold text-white font-mono">Livo-notes/Livo</span>
                   <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
                     MIT License
                   </span>

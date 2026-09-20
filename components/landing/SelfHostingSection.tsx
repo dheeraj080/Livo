@@ -64,7 +64,7 @@ export function SelfHostingSection() {
     {
       step: '1',
       title: 'Clone',
-      detail: 'git clone https://github.com/nimbus-notes/nimbus.git',
+      detail: 'git clone https://github.com/dheeraj080/Livo.git',
     },
     {
       step: '2',
@@ -79,7 +79,7 @@ export function SelfHostingSection() {
     },
     {
       step: '4',
-      title: 'Open Nimbus',
+      title: 'Open Livo',
       detail: 'http://localhost:3000',
     },
   ];
@@ -98,7 +98,7 @@ export function SelfHostingSection() {
             Your infrastructure. Your data.
           </h2>
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
-            Nimbus is designed to run on infrastructure you control. Deploy the complete stack with Docker Compose and operate your notes, documents, attachments, search index, and AI configuration directly.
+            Livo is designed to run on infrastructure you control. Deploy the complete stack with Docker Compose and operate your notes, documents, attachments, search index, and AI configuration directly.
           </p>
         </ScrollReveal>
 
@@ -114,7 +114,7 @@ export function SelfHostingSection() {
 
           {/* Diagram Layout */}
           <div className="flex flex-col items-center max-w-4xl mx-auto">
-            {/* Top Node: Nimbus */}
+            {/* Top Node: Livo */}
             <div
               className={`w-full max-w-xs p-4 rounded-xl bg-zinc-900 border border-zinc-700 text-center shadow-lg relative group transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 archRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
@@ -123,7 +123,7 @@ export function SelfHostingSection() {
               <div className="text-[11px] font-mono text-sky-400 uppercase tracking-wider font-semibold mb-1">
                 Application Layer
               </div>
-              <div className="text-base sm:text-lg font-bold text-white">Nimbus</div>
+              <div className="text-base sm:text-lg font-bold text-white">Livo</div>
               <div className="text-xs font-mono text-zinc-400 mt-0.5">Next.js Web App & API</div>
             </div>
 
@@ -324,7 +324,7 @@ export function SelfHostingSection() {
               Keep control of your data.
             </h3>
             <p className="mt-3 text-sm sm:text-base text-zinc-300 leading-relaxed">
-              Nimbus doesn&apos;t require your knowledge base to live on someone else&apos;s infrastructure. Run the application and its supporting services yourself and decide where your data and AI workloads live.
+              Livo doesn&apos;t require your knowledge base to live on someone else&apos;s infrastructure. Run the application and its supporting services yourself and decide where your data and AI workloads live.
             </p>
             <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
               Store notes and attachments in local Docker volumes, run inference through local models or direct API keys, and keep your data organized under your own operational terms.

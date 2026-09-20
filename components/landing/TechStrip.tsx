@@ -74,7 +74,7 @@ export function TechStrip() {
             </h2>
           </div>
           <p className="text-xs text-zinc-400 max-w-md">
-            Nimbus integrates industry-standard open-source systems. No custom proprietary databases, no vendor lock-in, and zero black-box storage engines.
+            Livo integrates industry-standard open-source systems. No custom proprietary databases, no vendor lock-in, and zero black-box storage engines.
           </p>
         </div>
 
@@ -114,7 +114,7 @@ export function TechStrip() {
 
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-zinc-500 text-center font-mono">
           <CheckCircle className="w-3.5 h-3.5 text-zinc-400" />
-          <span>Technologies shown reflect Nimbus modular backend architecture. Independent open-source integration.</span>
+          <span>Technologies shown reflect Livo modular backend architecture. Independent open-source integration.</span>
         </div>
       </ScrollReveal>
     </section>

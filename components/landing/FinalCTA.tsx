@@ -18,11 +18,11 @@ export function FinalCTA() {
         </div>
 
         <h2 className="text-3xl sm:text-5xl lg:text-[56px] font-bold tracking-tight text-white leading-[1.1] max-w-3xl mx-auto">
-          Run Nimbus on your infrastructure.
+          Run Livo on your infrastructure.
         </h2>
 
         <p className="text-base sm:text-lg lg:text-[19px] text-zinc-400 max-w-xl mx-auto font-normal leading-relaxed">
-          One Docker Compose stack for Nimbus, PostgreSQL, Redis, Elasticsearch, and S3-compatible storage.
+          One Docker Compose stack for Livo, PostgreSQL, Redis, Elasticsearch, and S3-compatible storage.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
@@ -36,7 +36,7 @@ export function FinalCTA() {
           </Link>
 
           <a
-            href="https://github.com"
+            href="https://github.com/dheeraj080/Livo"
             target="_blank"
             rel="noopener noreferrer"
             id="final-cta-github-btn"

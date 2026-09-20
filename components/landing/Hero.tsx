@@ -73,7 +73,7 @@ export function Hero() {
             </Link>
 
             <a
-              href="https://github.com"
+              href="https://github.com/dheeraj080/Livo"
               target="_blank"
               rel="noopener noreferrer"
               id="hero-github-btn"
@@ -107,7 +107,7 @@ export function Hero() {
                 Docker Compose
               </span>
               <span className="text-zinc-600">→</span>
-              <span className="text-zinc-300 font-semibold">Nimbus</span>
+              <span className="text-zinc-300 font-semibold">Livo</span>
               <span className="text-zinc-600">·</span>
               <span>PostgreSQL</span>
               <span className="text-zinc-600">·</span>

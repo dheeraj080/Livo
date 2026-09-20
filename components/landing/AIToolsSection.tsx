@@ -121,7 +121,7 @@ export function AIToolsSection() {
             Choose where your AI runs.
           </h2>
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
-            Connect Nimbus to supported AI providers such as Gemini, or configure local AI infrastructure where supported. Trigger discrete model operations directly from your editing cursor.
+            Connect Livo to supported AI providers such as Gemini, or configure local AI infrastructure where supported. Trigger discrete model operations directly from your editing cursor.
           </p>
         </ScrollReveal>
 

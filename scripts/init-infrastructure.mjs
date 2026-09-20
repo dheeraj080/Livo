@@ -92,8 +92,8 @@ CREATE INDEX IF NOT EXISTS "note_versions_note_id_idx" ON "note_versions" ("note
 CREATE INDEX IF NOT EXISTS "note_versions_note_created_idx" ON "note_versions" ("note_id", "created_at");
 `;
 
-const NOTES_INDEX = 'nimbus_notes';
-const CHUNKS_INDEX = 'nimbus_note_chunks';
+const NOTES_INDEX = 'Livo_notes';
+const CHUNKS_INDEX = 'Livo_note_chunks';
 
 const NOTES_INDEX_SETTINGS = {
   number_of_shards: 1,
@@ -153,11 +153,11 @@ function sleep(ms) {
 async function initializePostgres() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    console.log('[Nimbus Init] DATABASE_URL not set, skipping database migration.');
+    console.log('[Livo Init] DATABASE_URL not set, skipping database migration.');
     return;
   }
 
-  console.log('[Nimbus Init] Connecting to PostgreSQL to verify schema...');
+  console.log('[Livo Init] Connecting to PostgreSQL to verify schema...');
   const pool = new Pool({
     connectionString: databaseUrl,
     connectionTimeoutMillis: 5000,
@@ -169,18 +169,18 @@ async function initializePostgres() {
     try {
       const client = await pool.connect();
       try {
-        console.log(`[Nimbus Init] Connected to PostgreSQL (attempt ${attempt}). Applying migrations...`);
+        console.log(`[Livo Init] Connected to PostgreSQL (attempt ${attempt}). Applying migrations...`);
         await client.query('BEGIN');
         await client.query(INITIAL_MIGRATION_SQL);
         await client.query('COMMIT');
-        console.log('[Nimbus Init] PostgreSQL database migrations applied successfully.');
+        console.log('[Livo Init] PostgreSQL database migrations applied successfully.');
         connected = true;
         break;
       } finally {
         client.release();
       }
     } catch (err) {
-      console.warn(`[Nimbus Init] Database connection attempt ${attempt}/${maxRetries} failed: ${err.message}`);
+      console.warn(`[Livo Init] Database connection attempt ${attempt}/${maxRetries} failed: ${err.message}`);
       if (attempt < maxRetries) {
         await sleep(2000);
       }
@@ -190,18 +190,18 @@ async function initializePostgres() {
   await pool.end().catch(() => {});
 
   if (!connected) {
-    throw new Error('[Nimbus Init] Could not connect to PostgreSQL after multiple attempts.');
+    throw new Error('[Livo Init] Could not connect to PostgreSQL after multiple attempts.');
   }
 }
 
 async function initializeElasticsearch() {
   const esNode = process.env.ELASTICSEARCH_NODE;
   if (!esNode) {
-    console.log('[Nimbus Init] ELASTICSEARCH_NODE not set, skipping Elasticsearch setup.');
+    console.log('[Livo Init] ELASTICSEARCH_NODE not set, skipping Elasticsearch setup.');
     return;
   }
 
-  console.log(`[Nimbus Init] Connecting to Elasticsearch at ${esNode}...`);
+  console.log(`[Livo Init] Connecting to Elasticsearch at ${esNode}...`);
   const clientOptions = {
     node: esNode,
     requestTimeout: 10000,
@@ -225,12 +225,12 @@ async function initializeElasticsearch() {
     try {
       const ping = await client.ping();
       if (ping) {
-        console.log(`[Nimbus Init] Connected to Elasticsearch (attempt ${attempt}). Verifying indices...`);
+        console.log(`[Livo Init] Connected to Elasticsearch (attempt ${attempt}). Verifying indices...`);
         connected = true;
         break;
       }
     } catch (err) {
-      console.warn(`[Nimbus Init] Elasticsearch ping attempt ${attempt}/${maxRetries} failed: ${err.message}`);
+      console.warn(`[Livo Init] Elasticsearch ping attempt ${attempt}/${maxRetries} failed: ${err.message}`);
       if (attempt < maxRetries) {
         await sleep(2000);
       }
@@ -238,7 +238,7 @@ async function initializeElasticsearch() {
   }
 
   if (!connected) {
-    console.warn('[Nimbus Init] Warning: Elasticsearch did not respond to ping. Application will continue with on-demand retry.');
+    console.warn('[Livo Init] Warning: Elasticsearch did not respond to ping. Application will continue with on-demand retry.');
     return;
   }
 
@@ -251,16 +251,16 @@ async function initializeElasticsearch() {
         settings: NOTES_INDEX_SETTINGS,
         mappings: NOTES_INDEX_MAPPING,
       });
-      console.log(`[Nimbus Init] Created Elasticsearch index '${NOTES_INDEX}'.`);
+      console.log(`[Livo Init] Created Elasticsearch index '${NOTES_INDEX}'.`);
     } else {
       await client.indices.putMapping({
         index: NOTES_INDEX,
         properties: NOTES_INDEX_MAPPING.properties,
       });
-      console.log(`[Nimbus Init] Verified Elasticsearch index '${NOTES_INDEX}'.`);
+      console.log(`[Livo Init] Verified Elasticsearch index '${NOTES_INDEX}'.`);
     }
   } catch (err) {
-    console.warn(`[Nimbus Init] Notice on '${NOTES_INDEX}' index check:`, err.message);
+    console.warn(`[Livo Init] Notice on '${NOTES_INDEX}' index check:`, err.message);
   }
 
   // 2. Ensure note chunks index exists
@@ -272,43 +272,43 @@ async function initializeElasticsearch() {
         settings: NOTES_INDEX_SETTINGS,
         mappings: CHUNKS_INDEX_MAPPING,
       });
-      console.log(`[Nimbus Init] Created Elasticsearch index '${CHUNKS_INDEX}'.`);
+      console.log(`[Livo Init] Created Elasticsearch index '${CHUNKS_INDEX}'.`);
     } else {
       await client.indices.putMapping({
         index: CHUNKS_INDEX,
         properties: CHUNKS_INDEX_MAPPING.properties,
       });
-      console.log(`[Nimbus Init] Verified Elasticsearch index '${CHUNKS_INDEX}'.`);
+      console.log(`[Livo Init] Verified Elasticsearch index '${CHUNKS_INDEX}'.`);
     }
   } catch (err) {
-    console.warn(`[Nimbus Init] Notice on '${CHUNKS_INDEX}' index check:`, err.message);
+    console.warn(`[Livo Init] Notice on '${CHUNKS_INDEX}' index check:`, err.message);
   }
 
-  console.log('[Nimbus Init] Elasticsearch index verification complete.');
+  console.log('[Livo Init] Elasticsearch index verification complete.');
 }
 
 async function main() {
   console.log('====================================================');
-  console.log(' Nimbus Self-Hosted Infrastructure Initializer');
+  console.log(' Livo Self-Hosted Infrastructure Initializer');
   console.log('====================================================');
 
   try {
     await initializePostgres();
   } catch (err) {
-    console.error('[Nimbus Init] Fatal PostgreSQL error:', err.message);
+    console.error('[Livo Init] Fatal PostgreSQL error:', err.message);
     process.exit(1);
   }
 
   try {
     await initializeElasticsearch();
   } catch (err) {
-    console.warn('[Nimbus Init] Non-fatal Elasticsearch initialization warning:', err.message);
+    console.warn('[Livo Init] Non-fatal Elasticsearch initialization warning:', err.message);
   }
 
-  console.log('[Nimbus Init] Infrastructure readiness checks passed. Starting Nimbus...');
+  console.log('[Livo Init] Infrastructure readiness checks passed. Starting Livo...');
 }
 
 main().catch((err) => {
-  console.error('[Nimbus Init] Unexpected initialization error:', err);
+  console.error('[Livo Init] Unexpected initialization error:', err);
   process.exit(1);
 });

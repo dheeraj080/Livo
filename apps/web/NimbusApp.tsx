@@ -21,7 +21,7 @@ const initialNotes: Note[] = [
   {
     id: '1',
     title: 'Architecture & Hybrid Vector Search Spec',
-    content: '# Hybrid Search in Nimbus\n\nNimbus combines BM25 full-text lexical search with dense vector embeddings computed locally via Ollama or via secure cloud API.\n\n## Key Advantages\n- 100% offline capability\n- Zero data leakage\n- Sub-50ms query latency across 100,000+ notes.',
+    content: '# Hybrid Search in Livo\n\nLivo combines BM25 full-text lexical search with dense vector embeddings computed locally via Ollama or via secure cloud API.\n\n## Key Advantages\n- 100% offline capability\n- Zero data leakage\n- Sub-50ms query latency across 100,000+ notes.',
     folder: 'Engineering',
     updatedAt: '2 hrs ago',
     tags: ['Architecture', 'AI', 'Search']
@@ -44,7 +44,7 @@ const initialNotes: Note[] = [
   }
 ];
 
-function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
+function LivoAppContent({ initialNoteId }: { initialNoteId?: string }) {
   const { theme, setTheme } = useTheme();
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [activeNoteId, setActiveNoteId] = useState<string>(initialNoteId || '1');
@@ -55,7 +55,7 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
   const [aiResponses, setAiResponses] = useState<{ query: string; answer: string; citations: string[] }[]>([
     {
       query: 'What are the main advantages of hybrid search?',
-      answer: 'Nimbus combines BM25 lexical keyword matching with dense vector embeddings to ensure precise recall even with domain-specific jargon or typos.',
+      answer: 'Livo combines BM25 lexical keyword matching with dense vector embeddings to ensure precise recall even with domain-specific jargon or typos.',
       citations: ['Architecture & Hybrid Vector Search Spec']
     }
   ]);
@@ -91,7 +91,7 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
       setAiResponses(prev => [
         {
           query,
-          answer: `Based on your private vault notes regarding "${query}", Nimbus has synthesized that your architecture prioritizes local-first vector indexing with zero external telemetry.`,
+          answer: `Based on your private vault notes regarding "${query}", Livo has synthesized that your architecture prioritizes local-first vector indexing with zero external telemetry.`,
           citations: [activeNote.title]
         },
         ...prev
@@ -121,7 +121,7 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
             <div className="w-5 h-5 bg-foreground text-background rounded-md flex items-center justify-center font-bold text-xs shadow-sm">
               N
             </div>
-            <span className="font-bold tracking-tight">Nimbus Workspace</span>
+            <span className="font-bold tracking-tight">Livo Workspace</span>
           </div>
           <Badge variant="outline" className="hidden sm:inline-flex gap-1.5 font-mono text-[11px]">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -287,7 +287,7 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
                       AI Assistant Insights
                     </h4>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                      Nimbus AI has indexed this note for hybrid semantic retrieval. Ask questions or generate summaries instantly.
+                      Livo AI has indexed this note for hybrid semantic retrieval. Ask questions or generate summaries instantly.
                     </p>
                     <Button size="sm" onClick={() => setActiveTab('ai')} className="w-full text-xs">
                       Open AI Vault Chat
@@ -356,7 +356,7 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
             <div className="space-y-2 mb-6">
               <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                 <Sparkles className="w-6 h-6 text-primary" />
-                Nimbus Grounded AI Q&A
+                Livo Grounded AI Q&A
               </h2>
               <p className="text-sm text-muted-foreground">
                 Ask questions against your private notes with verified source citations and zero hallucination risk.
@@ -420,7 +420,7 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
         )}
       </div>
 
-      <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} title="Nimbus Settings & Configuration">
+      <Modal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} title="Livo Settings & Configuration">
         <div className="space-y-6 text-sm">
           <div className="space-y-2">
             <h4 className="font-semibold text-foreground">Appearance Theme</h4>
@@ -479,10 +479,10 @@ function NimbusAppContent({ initialNoteId }: { initialNoteId?: string }) {
   );
 }
 
-export default function NimbusApp({ initialNoteId }: { initialNoteId?: string } = {}) {
+export default function LivoApp({ initialNoteId }: { initialNoteId?: string } = {}) {
   return (
     <ThemeProvider>
-      <NimbusAppContent initialNoteId={initialNoteId} />
+      <LivoAppContent initialNoteId={initialNoteId} />
     </ThemeProvider>
   );
 }
