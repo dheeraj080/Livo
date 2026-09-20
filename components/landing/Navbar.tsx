@@ -1,13 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 
-interface NavbarProps {
-  onGetStarted: () => void;
-}
-
-export function Navbar({ onGetStarted }: NavbarProps) {
+export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -22,9 +19,9 @@ export function Navbar({ onGetStarted }: NavbarProps) {
   const navItems = [
     { label: 'Product', href: '#product', external: false },
     { label: 'Features', href: '#features', external: false },
-    { label: 'Documentation', href: '#docs', external: false },
-    { label: 'API', href: '#api', external: false },
-    { label: 'GitHub', href: 'https://github.com/dheeraj080/livo', external: true },
+    { label: 'Self-Hosting', href: '#self-hosting', external: false },
+    { label: 'Docs', href: '#docs', external: false },
+    { label: 'GitHub', href: 'https://github.com', external: true },
   ];
 
   return (
@@ -43,12 +40,12 @@ export function Navbar({ onGetStarted }: NavbarProps) {
             href="#"
             id="navbar-brand-link"
             className="flex items-center gap-2.5 group transition-opacity shrink-0"
-            aria-label="livo Home"
+            aria-label="Nimbus Home"
           >
             <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center shadow-sm">
               <div className="w-3 h-3 bg-black rounded-full" />
             </div>
-            <span className="text-[17px] font-bold tracking-tight text-white">livo</span>
+            <span className="text-[17px] font-bold tracking-tight text-white">Nimbus</span>
           </a>
 
           {/* Desktop Navigation Links */}
@@ -62,7 +59,7 @@ export function Navbar({ onGetStarted }: NavbarProps) {
                 key={item.label}
                 href={item.href}
                 {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                className="hover:text-white transition-colors"
+                className="hover:text-white transition-colors duration-200"
               >
                 {item.label}
               </a>
@@ -72,13 +69,13 @@ export function Navbar({ onGetStarted }: NavbarProps) {
 
         {/* Dominant Primary CTA */}
         <div className="hidden md:flex items-center">
-          <button
+          <Link
+            href="/app"
             id="navbar-get-started-btn"
-            onClick={onGetStarted}
-            className="bg-white text-zinc-950 text-xs sm:text-[13px] px-4 py-2 rounded-full font-semibold hover:bg-zinc-200 transition-colors shadow-sm cursor-pointer whitespace-nowrap min-h-[36px]"
+            className="bg-white text-zinc-950 text-xs sm:text-[13px] px-4 py-2 rounded-full font-semibold hover:bg-zinc-200 transition-all duration-200 ease-out shadow-sm hover:shadow hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] cursor-pointer whitespace-nowrap min-h-[36px] inline-flex items-center justify-center motion-reduce:transform-none motion-reduce:transition-none"
           >
-            Get started
-          </button>
+            Get Started
+          </Link>
         </div>
 
         {/* Mobile Menu Toggle Button */}
@@ -86,7 +83,7 @@ export function Navbar({ onGetStarted }: NavbarProps) {
           <button
             id="mobile-menu-toggle-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800/80 transition-colors"
+            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 border border-zinc-800/80 transition-all duration-200 active:scale-[0.98]"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -107,7 +104,7 @@ export function Navbar({ onGetStarted }: NavbarProps) {
                 href={item.href}
                 {...(item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-medium text-zinc-400 hover:text-white px-2.5 py-2 rounded-lg hover:bg-zinc-900/60 transition-colors"
+                className="text-sm font-medium text-zinc-400 hover:text-white px-2.5 py-2 rounded-lg hover:bg-zinc-900/60 transition-colors duration-200"
               >
                 {item.label}
               </a>
@@ -115,16 +112,14 @@ export function Navbar({ onGetStarted }: NavbarProps) {
           </div>
 
           <div className="pt-3 border-t border-zinc-800/60">
-            <button
+            <Link
+              href="/app"
               id="mobile-nav-get-started-btn"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onGetStarted();
-              }}
-              className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-white text-zinc-950 font-semibold text-sm hover:bg-zinc-200 transition-colors min-h-[44px]"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full bg-white text-zinc-950 font-semibold text-sm hover:bg-zinc-200 transition-all duration-200 ease-out active:scale-[0.98] min-h-[44px] motion-reduce:transform-none motion-reduce:transition-none"
             >
-              Get started
-            </button>
+              Get Started
+            </Link>
           </div>
         </div>
       )}

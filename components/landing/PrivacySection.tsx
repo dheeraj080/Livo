@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 import { Shield, Lock, Cpu, Sparkles, Server, Check, ArrowRight, Code, Key } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 export function PrivacySection() {
   const [selectedProvider, setSelectedProvider] = useState<'local' | 'cloud'>('local');
 
   return (
-    <section id="privacy" className="py-24 bg-[#09090b] border-t border-zinc-800/80 relative">
+    <section id="privacy" className="py-24 bg-[#09090b] border-t border-zinc-800/80 relative scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14">
+        <ScrollReveal className="max-w-3xl mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs text-zinc-400 font-mono mb-4">
             <Lock className="w-3.5 h-3.5 text-zinc-400" />
             <span>Data Autonomy</span>
@@ -19,16 +20,16 @@ export function PrivacySection() {
             AI without giving up ownership.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-zinc-400">
-            You don&apos;t have to sacrifice modern AI intelligence to keep your data private. livo gives you architectural choice over where and how your prompts are processed.
+            You don&apos;t have to sacrifice modern AI intelligence to keep your data private. Nimbus gives you architectural choice over where and how your prompts are processed.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Provider Comparison Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        <ScrollReveal delay={80} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
           {/* OPTION 1: LOCAL AI (Ollama) */}
           <div
             id="privacy-card-local"
-            className={`rounded-xl border p-6 sm:p-8 transition-all cursor-pointer ${
+            className={`rounded-xl border p-6 sm:p-8 transition-all duration-200 active:scale-[0.99] cursor-pointer ${
               selectedProvider === 'local'
                 ? 'bg-[#18181b] border-zinc-600 shadow-sm'
                 : 'bg-[#121214] border-zinc-800 hover:border-zinc-700'
@@ -74,7 +75,7 @@ export function PrivacySection() {
           {/* OPTION 2: CLOUD AI (Gemini) */}
           <div
             id="privacy-card-cloud"
-            className={`rounded-xl border p-6 sm:p-8 transition-all cursor-pointer ${
+            className={`rounded-xl border p-6 sm:p-8 transition-all duration-200 active:scale-[0.99] cursor-pointer ${
               selectedProvider === 'cloud'
                 ? 'bg-[#18181b] border-zinc-600 shadow-sm'
                 : 'bg-[#121214] border-zinc-800 hover:border-zinc-700'
@@ -100,7 +101,7 @@ export function PrivacySection() {
             <div className="space-y-3 text-xs text-zinc-300 border-t border-zinc-800/80 pt-5">
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Direct client-to-API communication with zero livo intermediary proxy servers.</span>
+                <span>Direct client-to-API communication with zero Nimbus intermediary proxy servers.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
@@ -116,10 +117,10 @@ export function PrivacySection() {
               Ideal for: Heavy reasoning tasks, huge context synthesis, low-spec servers.
             </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Pluggable Architecture Breakdown */}
-        <div className="rounded-xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 shadow-xl">
+        <ScrollReveal delay={120} className="rounded-xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 shadow-xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-zinc-800 mb-6">
             <div>
               <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 font-medium uppercase mb-1">
@@ -164,7 +165,7 @@ export function PrivacySection() {
               </p>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

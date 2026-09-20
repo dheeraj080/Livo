@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import {
   Search,
-  Sparkles,
   FileText,
   FileCode,
   Layers,
@@ -12,6 +11,7 @@ import {
   ShieldCheck,
   Command,
 } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 export function AISection() {
   const [selectedSource, setSelectedSource] = useState<number>(0);
@@ -53,16 +53,16 @@ export function AISection() {
   ];
 
   return (
-    <section id="features" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/80 relative">
+    <section id="features" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <span id="ai" className="scroll-mt-24" />
       <span id="search" className="scroll-mt-24" />
       <span id="ai-search" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14 sm:mb-16">
+        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-            <span>AI Knowledge Search & Grounding</span>
+            <Search className="w-3.5 h-3.5 text-sky-400" />
+            <span>Knowledge Search & Grounding</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold tracking-tight text-white leading-[1.15]">
             Ask your knowledge base.<br />
@@ -71,10 +71,10 @@ export function AISection() {
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
             Search and reason across notes, technical specs, and parsed PDFs instead of digging through tabs. Every AI response directly links to exact paragraph sources in your vault.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Large Dominant Product Demonstration Console */}
-        <div className="rounded-2xl border border-zinc-800 bg-[#121214] shadow-2xl overflow-hidden">
+        <ScrollReveal delay={100} className="rounded-2xl border border-zinc-800 bg-[#121214] shadow-2xl overflow-hidden">
           {/* Top Window Navigation Bar */}
           <div className="px-6 py-4 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ export function AISection() {
                 <span className="w-3 h-3 rounded-full bg-zinc-700/80" />
               </div>
               <span className="text-xs sm:text-[13px] font-mono text-zinc-400 border-l border-zinc-800 pl-3">
-                livo / knowledge-query
+                nimbus / knowledge-query
               </span>
             </div>
 
@@ -116,8 +116,8 @@ export function AISection() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between text-xs sm:text-[13px] font-mono text-zinc-400">
                 <span className="text-sky-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  AI Synthesized Answer
+                  <Search className="w-3.5 h-3.5" />
+                  Synthesized Answer with Citations
                 </span>
                 <span className="text-zinc-500">Retrieval latency: 34ms</span>
               </div>
@@ -260,13 +260,13 @@ export function AISection() {
                   </span>
                 </div>
 
-                <div className="font-mono text-xs sm:text-[13px] text-zinc-300 bg-[#18181b] p-4 rounded-lg border border-zinc-800/80 leading-relaxed">
+                <div className="font-mono text-xs sm:text-[13px] text-zinc-300 bg-[#18181b] p-4 rounded-lg border border-zinc-800/80 leading-relaxed transition-opacity duration-200">
                   {sources[selectedSource].excerpt}
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

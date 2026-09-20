@@ -5,10 +5,11 @@ import {
   FileText,
   Paperclip,
   FolderTree,
-  Zap,
+  Search,
   Check,
   Layers,
 } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 export function ProductSection() {
   const [activeLayer, setActiveLayer] = useState<'editor' | 'attachments' | 'taxonomy' | 'sync'>('editor');
@@ -17,15 +18,15 @@ export function ProductSection() {
     { id: 'editor' as const, label: 'Markdown & Math', icon: FileText },
     { id: 'attachments' as const, label: 'PDFs & OCR Attachments', icon: Paperclip },
     { id: 'taxonomy' as const, label: 'Notebooks & Tags', icon: FolderTree },
-    { id: 'sync' as const, label: 'Local-First Engine', icon: Zap },
+    { id: 'sync' as const, label: 'Search & Indexing', icon: Search },
   ];
 
   return (
-    <section id="product" className="py-24 md:py-32 lg:py-36 border-t border-zinc-800/80 bg-[#09090b] relative overflow-hidden">
+    <section id="product" className="py-24 md:py-32 lg:py-36 border-t border-zinc-800/40 bg-[#09090b] relative overflow-hidden scroll-mt-20">
       <span id="knowledge-layer" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14 sm:mb-16">
+        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
             <Layers className="w-3.5 h-3.5 text-sky-400" />
             <span>One Connected Knowledge Layer</span>
@@ -35,35 +36,37 @@ export function ProductSection() {
             <span className="text-zinc-500">Connected through a structured document graph.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
-            Organize long-form Markdown, OCR-scanned PDFs, code snippets, and hierarchical notebooks in a single cohesive workspace backed by local SQLite and instant full-text indexing.
+            Organize long-form Markdown, OCR-scanned PDFs, code snippets, and hierarchical notebooks in a single cohesive workspace backed by PostgreSQL and Elasticsearch indexing.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* View Switcher Pills */}
-        <div className="flex flex-wrap items-center gap-2 mb-8">
-          {layerPills.map((pill) => {
-            const Icon = pill.icon;
-            const isActive = activeLayer === pill.id;
-            return (
-              <button
-                key={pill.id}
-                id={`layer-pill-${pill.id}`}
-                onClick={() => setActiveLayer(pill.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs sm:text-[13px] font-medium transition-all cursor-pointer min-h-[40px] ${
-                  isActive
-                    ? 'bg-white text-black border-white font-semibold shadow-sm'
-                    : 'bg-[#121214] border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-black' : 'text-zinc-400'}`} />
-                <span>{pill.label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <ScrollReveal delay={80}>
+          <div className="flex flex-wrap items-center gap-2 mb-8">
+            {layerPills.map((pill) => {
+              const Icon = pill.icon;
+              const isActive = activeLayer === pill.id;
+              return (
+                <button
+                  key={pill.id}
+                  id={`layer-pill-${pill.id}`}
+                  onClick={() => setActiveLayer(pill.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs sm:text-[13px] font-medium transition-all duration-200 active:scale-[0.98] cursor-pointer min-h-[40px] motion-reduce:transform-none ${
+                    isActive
+                      ? 'bg-white text-black border-white font-semibold shadow-sm'
+                      : 'bg-[#121214] border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-black' : 'text-zinc-400'}`} />
+                  <span>{pill.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </ScrollReveal>
 
         {/* One Large Unified Visual Workspace */}
-        <div className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-2xl">
+        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-2xl">
           {/* TAB 1: Markdown & Math */}
           {activeLayer === 'editor' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
@@ -98,7 +101,7 @@ export function ProductSection() {
                 <div className="flex items-center justify-between pb-3.5 border-b border-zinc-800 mb-4 text-xs sm:text-[13px] font-mono text-zinc-400">
                   <span className="text-zinc-200">notes/raft-consensus-implementation.md</span>
                   <span className="text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded text-[11px]">
-                    Saved Local (0ms latency)
+                    Saved to Vault
                   </span>
                 </div>
                 <div className="space-y-3.5 text-xs sm:text-[13px]">
@@ -133,13 +136,13 @@ export function ProductSection() {
                   Attach PDFs, whitepapers, & diagrams. All fully OCR-indexed.
                 </h3>
                 <p className="text-[15px] sm:text-base text-zinc-400 leading-relaxed">
-                  Drag and drop technical papers, system diagrams, and research notes. livo automatically runs optical character recognition on images and builds full-text search tokens across every page.
+                  Drag and drop technical papers, system diagrams, and research notes. Nimbus automatically runs optical character recognition on images and builds full-text search tokens across every page.
                 </p>
 
                 <div className="space-y-3 pt-2 font-mono text-xs sm:text-[13px] text-zinc-300">
                   <div className="flex items-center gap-2.5">
                     <Check className="w-4 h-4 text-sky-400 shrink-0" />
-                    <span>Background OCR with 0 external cloud dependencies</span>
+                    <span>Background OCR pipeline for document attachments</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <Check className="w-4 h-4 text-sky-400 shrink-0" />
@@ -242,58 +245,79 @@ export function ProductSection() {
             </div>
           )}
 
-          {/* TAB 4: Local-First Engine */}
+          {/* TAB 4: Search & Indexing */}
           {activeLayer === 'sync' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
               <div className="lg:col-span-5 space-y-4">
                 <span className="text-xs sm:text-[13px] font-mono text-sky-400 font-semibold uppercase tracking-wider">
-                  Instantaneous Response
+                  Elasticsearch Full-Text Engine
                 </span>
                 <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight">
-                  Local-first performance with instantaneous search.
+                  Instant full-text and semantic retrieval across your vault.
                 </h3>
                 <p className="text-[15px] sm:text-base text-zinc-400 leading-relaxed">
-                  Zero lag when switching notes or typing complex documents. Everything executes locally in memory with persistent SQLite backups and deterministic background sync.
+                  Decoupled Elasticsearch indexing provides sub-second keyword and phrase searches across thousands of Markdown documents, PDFs, and code snippets without locking the primary PostgreSQL database.
                 </p>
 
                 <div className="space-y-3 pt-2 font-mono text-xs sm:text-[13px] text-zinc-300">
                   <div className="flex items-center gap-2.5">
                     <Check className="w-4 h-4 text-sky-400 shrink-0" />
-                    <span>Sub-millisecond note opening and cursor render</span>
+                    <span>BM25 tokenization and full-text scoring</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <Check className="w-4 h-4 text-sky-400 shrink-0" />
-                    <span>Offline-first operation with optimistic updates</span>
+                    <span>Filter by notebook, tag, or attachment type</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <Check className="w-4 h-4 text-sky-400 shrink-0" />
-                    <span>Export to standard Markdown files at any time</span>
+                    <span>Continuous background synchronization via BullMQ</span>
                   </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-7 bg-[#18181b] rounded-xl border border-zinc-800 p-5 sm:p-6 shadow-inner space-y-4">
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="p-4 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <div className="text-xl sm:text-2xl font-bold text-white font-mono">&lt; 1ms</div>
-                    <div className="text-[11px] text-zinc-500 font-mono mt-1">Editor Key Latency</div>
+              <div className="lg:col-span-7 bg-[#18181b] rounded-xl border border-zinc-800 p-5 sm:p-6 shadow-inner space-y-3">
+                {/* Search query appears first */}
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-800 text-xs sm:text-[13px] font-mono transition-opacity duration-300">
+                  <div className="flex items-center gap-2 text-zinc-300">
+                    <Search className="w-3.5 h-3.5 text-sky-400" />
+                    <span className="text-white font-medium">query: &ldquo;connection pooling latency&rdquo;</span>
                   </div>
-                  <div className="p-4 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <div className="text-xl sm:text-2xl font-bold text-emerald-400 font-mono">100%</div>
-                    <div className="text-[11px] text-zinc-500 font-mono mt-1">Offline Capable</div>
+                  <span className="text-zinc-500 text-[11px]">2 matches found</span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {/* Result row 1 */}
+                  <div className="p-3.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs space-y-1.5 transition-all duration-300 ease-out hover:border-zinc-700/80">
+                    <div className="flex items-center justify-between font-mono">
+                      <span className="font-semibold text-zinc-200">notes/architecture/pgbouncer-setup.md</span>
+                      <span className="text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-1.5 py-0.5 rounded">Score: 0.94</span>
+                    </div>
+                    <p className="text-zinc-400 font-mono text-[11px] leading-relaxed">
+                      &ldquo;...Introducing <mark className="bg-sky-500/20 text-sky-300 px-1 rounded">PgBouncer</mark> in transaction mode reduced CPU from 94% to 28% and stabilized <mark className="bg-sky-500/20 text-sky-300 px-1 rounded">p99 latency</mark> at 12ms...&rdquo;
+                    </p>
                   </div>
-                  <div className="p-4 rounded-lg bg-zinc-900 border border-zinc-800">
-                    <div className="text-xl sm:text-2xl font-bold text-sky-400 font-mono">0ms</div>
-                    <div className="text-[11px] text-zinc-500 font-mono mt-1">Cloud Dependency</div>
+
+                  {/* Result row 2 */}
+                  <div className="p-3.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs space-y-1.5 transition-all duration-300 ease-out hover:border-zinc-700/80">
+                    <div className="flex items-center justify-between font-mono">
+                      <span className="font-semibold text-zinc-200">specs/database-topology.md</span>
+                      <span className="text-[10px] text-zinc-400 bg-zinc-800 border border-zinc-700/50 px-1.5 py-0.5 rounded">Score: 0.81</span>
+                    </div>
+                    <p className="text-zinc-400 font-mono text-[11px] leading-relaxed">
+                      &ldquo;...Connection pooling parameters configured across worker nodes to minimize overhead during bulk document indexing...&rdquo;
+                    </p>
                   </div>
                 </div>
-                <div className="p-3.5 rounded-lg bg-zinc-900/60 border border-zinc-800 text-xs font-mono text-zinc-400 text-center">
-                  All state changes persist to local SQLite with WAL journaling enabled.
+
+                {/* Metadata footer follows */}
+                <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-zinc-500 border-t border-zinc-800/60 transition-opacity duration-300">
+                  <span>Indexed in Elasticsearch (1,428 documents)</span>
+                  <span className="text-zinc-400">BM25 + Hybrid Ranking</span>
                 </div>
               </div>
             </div>
           )}
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import { BookOpen, Terminal, Code2, Copy, Check } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 export function DocsPreviewSection() {
   const [activeTab, setActiveTab] = useState<'quickstart' | 'env' | 'api'>('quickstart');
   const [copied, setCopied] = useState(false);
 
   const envSample = `# Core Database & Services
-DATABASE_URL=postgres://livo:password@postgres:5432/livo_db
+DATABASE_URL=postgres://nimbus:password@postgres:5432/nimbus_db
 ELASTICSEARCH_URL=http://elasticsearch:9200
 MINIO_ENDPOINT=minio:9000
 REDIS_URL=redis://redis:6379
@@ -28,7 +29,7 @@ JWT_SECRET=production_random_token_string`;
 
   const apiSample = `// POST /api/v1/search/hybrid
 curl -X POST http://localhost:3000/api/v1/search/hybrid \\
-  -H "Authorization: Bearer $livo_TOKEN" \\
+  -H "Authorization: Bearer $NIMBUS_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
     "query": "what did I write about scaling databases?",
@@ -38,9 +39,9 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
   }'`;
 
   return (
-    <section id="docs" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/80 relative">
+    <section id="docs" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mb-14 sm:mb-16">
+        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
             <BookOpen className="w-3.5 h-3.5 text-zinc-300" />
             <span>Documentation & API</span>
@@ -52,15 +53,15 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
             Clear, copyable configurations for Docker Compose, environment variables, and the OpenAPI REST endpoints.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Documentation Tab Viewer */}
-        <div className="rounded-2xl border border-zinc-800 bg-[#121214] overflow-hidden shadow-2xl">
+        <ScrollReveal delay={100} className="rounded-2xl border border-zinc-800 bg-[#121214] overflow-hidden shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between px-5 sm:px-6 py-4 bg-[#121214] border-b border-zinc-800 gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setActiveTab('quickstart')}
-                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-mono transition-colors cursor-pointer min-h-[32px] ${
+                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-mono transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[32px] ${
                   activeTab === 'quickstart'
                     ? 'bg-zinc-800 text-white font-semibold'
                     : 'text-zinc-400 hover:text-white'
@@ -70,7 +71,7 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
               </button>
               <button
                 onClick={() => setActiveTab('env')}
-                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-mono transition-colors cursor-pointer min-h-[32px] ${
+                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-mono transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[32px] ${
                   activeTab === 'env'
                     ? 'bg-zinc-800 text-white font-semibold'
                     : 'text-zinc-400 hover:text-white'
@@ -80,7 +81,7 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
               </button>
               <button
                 onClick={() => setActiveTab('api')}
-                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-mono transition-colors cursor-pointer min-h-[32px] ${
+                className={`px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-mono transition-all duration-150 active:scale-[0.98] cursor-pointer min-h-[32px] ${
                   activeTab === 'api'
                     ? 'bg-zinc-800 text-white font-semibold'
                     : 'text-zinc-400 hover:text-white'
@@ -97,12 +98,12 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
                     ? envSample
                     : activeTab === 'api'
                     ? apiSample
-                    : 'git clone https://github.com/dheeraj080/livo && cd livo && docker compose up -d';
+                    : 'git clone https://github.com/nimbus-notes/nimbus.git && cd nimbus && docker compose up -d';
                 navigator.clipboard.writeText(text);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
               }}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer self-end sm:self-auto min-h-[32px]"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-mono text-zinc-400 hover:text-white transition-all duration-150 active:scale-[0.97] cursor-pointer self-end sm:self-auto min-h-[32px]"
             >
               {copied ? (
                 <>
@@ -118,16 +119,16 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
             </button>
           </div>
 
-          <div className="p-6 sm:p-8 lg:p-10">
+          <div className="p-6 sm:p-8 lg:p-10 transition-opacity duration-200">
             {activeTab === 'quickstart' && (
               <div className="space-y-4">
                 <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-2xl">
-                  Deploy the full livo sovereign stack on your local machine, homelab, or cloud VPS with a single command:
+                  Deploy the full Nimbus sovereign stack on your local machine, homelab, or cloud VPS with a single command:
                 </p>
                 <div className="bg-[#18181b] rounded-xl border border-zinc-800 p-5 font-mono text-xs sm:text-[13px] text-zinc-200 overflow-x-auto leading-relaxed">
                   <span className="text-zinc-500"># 1. Clone repository</span>{'\n'}
-                  git clone https://github.com/livo-notes/livo.git{'\n'}
-                  cd livo{'\n\n'}
+                  git clone https://github.com/nimbus-notes/nimbus.git{'\n'}
+                  cd nimbus{'\n\n'}
                   <span className="text-zinc-500"># 2. Launch production stack in background</span>{'\n'}
                   docker compose up -d{'\n\n'}
                   <span className="text-zinc-500"># 3. Open browser</span>{'\n'}
@@ -162,7 +163,7 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
               </div>
             )}
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

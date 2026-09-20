@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Check, Copy, Terminal, ExternalLink, ShieldCheck, HardDrive, Cpu } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Check, Copy, Terminal, ExternalLink, Shield, HardDrive, Cpu } from 'lucide-react';
 
 interface QuickStartModalProps {
   isOpen: boolean;
@@ -10,6 +10,15 @@ interface QuickStartModalProps {
 
 export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -22,18 +31,23 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
   const steps = [
     {
       title: '1. Clone the repository',
-      command: 'git clone https://github.com/dheeraj080/livo && cd livo',
-      desc: 'Get the official open-source compose configuration and default environment variables.',
+      command: 'git clone https://github.com/nimbus-notes/nimbus.git && cd nimbus',
+      desc: 'Get the official Docker Compose configuration and default environment files.',
     },
     {
-      title: '2. Launch the infrastructure stack',
+      title: '2. Configure environment',
+      command: 'cp .env.example .env',
+      desc: 'Set your database passwords, search credentials, and optional AI keys.',
+    },
+    {
+      title: '3. Launch with Docker Compose',
       command: 'docker compose up -d',
-      desc: 'Spins up livo Server, PostgreSQL with pgvector, Elasticsearch, MinIO, and Redis.',
+      desc: 'Spins up Nimbus, PostgreSQL, Redis, Elasticsearch, and MinIO in the background.',
     },
     {
-      title: '3. Open the web interface',
-      command: 'open http://localhost:3000',
-      desc: 'Complete initial vault setup in 30 seconds. Choose local Ollama or your private Gemini key.',
+      title: '4. Open web interface',
+      command: 'http://localhost:3000',
+      desc: 'Access your self-hosted knowledge workspace and connect your notes.',
     },
   ];
 
@@ -53,48 +67,48 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
           <div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-[#18181b] text-zinc-300 border border-zinc-800">
-                Self-Host in 60s
+                Docker Compose Stack
               </span>
               <span className="text-xs text-zinc-400 font-mono">MIT License</span>
             </div>
-            <h3 className="text-xl font-bold text-white mt-1">Get Started with livo</h3>
+            <h3 className="text-xl font-bold text-white mt-1">Deploy Nimbus with Docker</h3>
           </div>
           <button
             id="close-quickstart-modal-btn"
             onClick={onClose}
             aria-label="Close modal"
-            className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 active:scale-95 transition-all duration-150 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="mt-6 space-y-5">
+        <div className="mt-6 space-y-4">
           {steps.map((step, idx) => (
-            <div key={idx} className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
+            <div key={idx} className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
                 <span className="font-medium text-zinc-200">{step.title}</span>
-                <span className="text-xs text-zinc-500">{step.desc}</span>
+                <span className="text-[11px] sm:text-xs text-zinc-500 hidden sm:inline">{step.desc}</span>
               </div>
-              <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 rounded-xl px-3.5 py-2.5 font-mono text-xs text-zinc-300">
+              <div className="flex items-center justify-between bg-[#18181b] border border-zinc-800 rounded-xl px-3.5 py-2 font-mono text-xs text-zinc-300">
                 <div className="flex items-center gap-2 overflow-x-auto">
-                  <Terminal className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <Terminal className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                   <span className="select-all text-zinc-200">{step.command}</span>
                 </div>
                 <button
                   id={`copy-step-${idx}-btn`}
                   onClick={() => copyToClipboard(step.command, idx)}
-                  className="ml-3 shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                  className="ml-3 shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 active:scale-95 transition-all duration-150 cursor-pointer text-xs"
                 >
                   {copiedIndex === idx ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-[11px] text-emerald-400 font-sans">Copied</span>
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      <span className="text-emerald-400 font-sans">Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span className="text-[11px] font-sans">Copy</span>
+                      <Copy className="w-3 h-3" />
+                      <span className="font-sans">Copy</span>
                     </>
                   )}
                 </button>
@@ -103,11 +117,11 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
           ))}
         </div>
 
-        <div className="mt-8 pt-6 border-t border-zinc-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-zinc-400">
+        <div className="mt-6 pt-5 border-t border-zinc-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-zinc-400">
           <div className="flex items-start gap-2 p-2.5 rounded-xl bg-[#18181b] border border-zinc-800">
-            <ShieldCheck className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
+            <Shield className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-zinc-200">100% Local Data</p>
+              <p className="font-medium text-zinc-200">Data Ownership</p>
               <p className="text-[11px] text-zinc-500">Your notes stay in your private Docker volumes.</p>
             </div>
           </div>
@@ -115,21 +129,21 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
             <Cpu className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-zinc-200">Pluggable AI</p>
-              <p className="text-[11px] text-zinc-500">Switch between local Ollama and Gemini API.</p>
+              <p className="text-[11px] text-zinc-500">Choose between local Ollama and Gemini API.</p>
             </div>
           </div>
           <div className="flex items-start gap-2 p-2.5 rounded-xl bg-[#18181b] border border-zinc-800">
             <HardDrive className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-zinc-200">Any Hardware</p>
-              <p className="text-[11px] text-zinc-500">Runs smoothly on Raspberry Pi, VPS, or cloud.</p>
+              <p className="font-medium text-zinc-200">Standard Infrastructure</p>
+              <p className="text-[11px] text-zinc-500">PostgreSQL, Redis, Elasticsearch, and MinIO.</p>
             </div>
           </div>
         </div>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <a
-            href="https://github.com/dheeraj080/livo"
+            href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-zinc-400 hover:text-white inline-flex items-center gap-1.5 transition-colors"
@@ -140,9 +154,9 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
           <button
             id="done-quickstart-btn"
             onClick={onClose}
-            className="w-full sm:w-auto px-5 py-2 bg-white text-black hover:bg-zinc-200 text-xs font-semibold rounded-full transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2 bg-white text-black hover:bg-zinc-200 active:scale-95 text-xs font-semibold rounded-full transition-all duration-150 cursor-pointer"
           >
-            Got it, take me back
+            Close
           </button>
         </div>
       </div>

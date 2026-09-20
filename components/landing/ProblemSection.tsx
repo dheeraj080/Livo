@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { SearchX, ArrowRight, Database, CheckCircle2 } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 export function ProblemSection() {
   const scatteredSources = [
@@ -12,10 +13,10 @@ export function ProblemSection() {
   ];
 
   return (
-    <section id="problem" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/80 relative">
+    <section id="problem" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14 sm:mb-16">
+        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             <span>The Fragmentation Problem</span>
@@ -27,10 +28,10 @@ export function ProblemSection() {
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
             Engineering RFCs in Git repositories, research papers in local folders, specs in Notion, and incident logs in team chats. Locating critical decisions requires jumping between disconnected silos.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Visually Obvious Comparison Graphic */}
-        <div className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-xl">
+        <ScrollReveal delay={100} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left: The Scattered State */}
             <div className="lg:col-span-5 space-y-4">
@@ -84,11 +85,11 @@ export function ProblemSection() {
               </span>
             </div>
 
-            {/* Right: The livo Resolution */}
+            {/* Right: The Nimbus Resolution */}
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                 <span className="text-xs sm:text-[13px] font-mono uppercase text-sky-400 tracking-wider font-semibold">
-                  The livo Knowledge Layer
+                  The Nimbus Knowledge Layer
                 </span>
                 <span className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded">
                   Hybrid Search + RAG
@@ -121,11 +122,11 @@ export function ProblemSection() {
               </div>
 
               <p className="text-xs sm:text-[13px] text-zinc-400 font-mono text-center">
-                Runs 100% on your hardware via Docker Compose. Zero telemetry.
+                Deployable on your own server via Docker Compose.
               </p>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

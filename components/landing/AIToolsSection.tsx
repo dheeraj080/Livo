@@ -9,12 +9,10 @@ import {
   HelpCircle,
   MessageSquareCode,
   Sparkles,
-  ArrowRight,
   Check,
   Cpu,
-  ShieldCheck,
-  Zap,
 } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 export function AIToolsSection() {
   const [selectedTool, setSelectedTool] = useState<number>(0);
@@ -110,49 +108,50 @@ export function AIToolsSection() {
   const current = tools[selectedTool];
 
   return (
-    <section id="ai-engine" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/80 relative">
+    <section id="ai-engine" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <span id="ai-tools" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="max-w-3xl mb-14 sm:mb-16">
+        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
             <Cpu className="w-3.5 h-3.5 text-sky-400" />
-            <span>In-Editor Operations</span>
+            <span>AI Inference & Cursor Actions</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold tracking-tight text-white leading-[1.15]">
-            Targeted actions inside your editor.<br />
-            <span className="text-zinc-500">Transform, extract, and synthesize on demand.</span>
+            Choose where your AI runs.
           </h2>
           <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
-            Trigger discrete model operations directly from the editing cursor: summarize lengthy postmortems, generate structured taxonomy tags, reformat rough notes into technical RFCs, or explain dense math formulations.
+            Connect Nimbus to supported AI providers such as Gemini, or configure local AI infrastructure where supported. Trigger discrete model operations directly from your editing cursor.
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Action Picker Ribbon */}
-        <div className="flex flex-wrap items-center gap-2 mb-8">
-          {tools.map((tool) => {
-            const Icon = tool.icon;
-            const isSelected = selectedTool === tool.id;
-            return (
-              <button
-                key={tool.id}
-                id={`ai-tool-pill-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
-                onClick={() => setSelectedTool(tool.id)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs sm:text-[13px] font-medium transition-all cursor-pointer min-h-[40px] ${
-                  isSelected
-                    ? 'bg-white text-black border-white font-semibold shadow-sm'
-                    : 'bg-[#121214] border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-black' : 'text-zinc-400'}`} />
-                <span>{tool.name}</span>
-              </button>
-            );
-          })}
-        </div>
+        <ScrollReveal delay={80}>
+          <div className="flex flex-wrap items-center gap-2 mb-8">
+            {tools.map((tool) => {
+              const Icon = tool.icon;
+              const isSelected = selectedTool === tool.id;
+              return (
+                <button
+                  key={tool.id}
+                  id={`ai-tool-pill-${tool.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => setSelectedTool(tool.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-xs sm:text-[13px] font-medium transition-all duration-200 active:scale-[0.98] cursor-pointer min-h-[40px] motion-reduce:transform-none ${
+                    isSelected
+                      ? 'bg-white text-black border-white font-semibold shadow-sm'
+                      : 'bg-[#121214] border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-800'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-black' : 'text-zinc-400'}`} />
+                  <span>{tool.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </ScrollReveal>
 
         {/* Interactive Action Canvas */}
-        <div className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-2xl">
+        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800 mb-6 gap-3">
             <div className="flex items-center gap-2.5">
               <span className="w-2 h-2 rounded-full bg-sky-400" />
@@ -172,7 +171,18 @@ export function AIToolsSection() {
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                Ollama (Offline)
+                Local (Ollama)
+              </button>
+              <button
+                id="provider-toggle-gemini"
+                onClick={() => setSelectedProvider('gemini')}
+                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
+                  selectedProvider === 'gemini'
+                    ? 'bg-zinc-800 text-white font-semibold'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                Gemini API
               </button>
             </div>
           </div>
@@ -205,10 +215,10 @@ export function AIToolsSection() {
                     {current.outputLabel}
                   </span>
                   <span className="text-zinc-500 text-xs">
-                    {selectedProvider === 'ollama' ? 'Llama 3.3 70B' : ''}
+                    {selectedProvider === 'ollama' ? 'Llama 3.3 70B' : 'Gemini 2.5 Flash'}
                   </span>
                 </div>
-                <div className="text-xs sm:text-[13px] text-zinc-200 leading-relaxed font-mono whitespace-pre-line bg-zinc-900/90 p-4 rounded-lg border border-zinc-800 text-emerald-300/95">
+                <div className="text-xs sm:text-[13px] text-zinc-200 leading-relaxed font-mono whitespace-pre-line bg-zinc-900/90 p-4 rounded-lg border border-zinc-800 text-emerald-300/95 transition-opacity duration-200">
                   {current.outputText}
                 </div>
               </div>
@@ -222,7 +232,7 @@ export function AIToolsSection() {
               </div>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );
