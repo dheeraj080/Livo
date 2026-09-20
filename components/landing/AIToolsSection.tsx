@@ -174,17 +174,6 @@ export function AIToolsSection() {
               >
                 Ollama (Offline)
               </button>
-              <button
-                id="provider-toggle-gemini"
-                onClick={() => setSelectedProvider('gemini')}
-                className={`px-3 py-1 rounded-full transition-colors cursor-pointer ${
-                  selectedProvider === 'gemini'
-                    ? 'bg-zinc-800 text-white font-semibold'
-                    : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                Gemini (Cloud)
-              </button>
             </div>
           </div>
 
@@ -216,7 +205,7 @@ export function AIToolsSection() {
                     {current.outputLabel}
                   </span>
                   <span className="text-zinc-500 text-xs">
-                    {selectedProvider === 'ollama' ? 'Llama 3.3 70B' : 'Gemini 2.5 Flash'}
+                    {selectedProvider === 'ollama' ? 'Llama 3.3 70B' : ''}
                   </span>
                 </div>
                 <div className="text-xs sm:text-[13px] text-zinc-200 leading-relaxed font-mono whitespace-pre-line bg-zinc-900/90 p-4 rounded-lg border border-zinc-800 text-emerald-300/95">

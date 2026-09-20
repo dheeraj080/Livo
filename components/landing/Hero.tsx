@@ -33,9 +33,7 @@ export function Hero({ onGetStarted }: HeroProps) {
       {/* Ambient glow behind the product mockup */}
       <div className="pointer-events-none absolute left-1/2 top-1/3 h-[350px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-500/[0.04] blur-[120px]" />
 
-      {/* Additional subtle center glow */}
-      <div className="pointer-events-none absolute left-1/2 top-[55%] h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-white/[0.015] blur-[160px]" />
-
+      
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Headline & Value Proposition */}

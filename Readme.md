@@ -1,520 +1,245 @@
-# livo
+# Nimbus — AI-Powered Personal Knowledge Management
 
-> **Self-hosted AI knowledge platform for your notes, documents, and ideas.**
-
-livo is an open, self-hostable knowledge-management platform designed to give you control over your data, infrastructure, and AI.
-
-It combines a modern note editor with full-text search, document processing, AI-powered tools, attachments, and a modular backend architecture.
+Nimbus is a modern, modular-monolith personal knowledge management application inspired by Evernote and Notion. It combines rich-text document editing, nested notebook hierarchies, full-text and semantic vector search, file attachment processing, and AI-assisted workflows into a single coherent system.
 
 ---
 
-## ✨ Features
+## Architecture Overview
 
-* 📝 **Rich note editor** powered by Tiptap
-* 📚 **Notebooks and notes** for organizing knowledge
-* 🔎 **Full-text search** with Elasticsearch
-* 🤖 **AI-powered knowledge tools**
-* 📎 **File and document attachments**
-* 📄 **Document text extraction**
-* ⚡ **Asynchronous background processing**
-* 🏷️ **Tags and organization**
-* 🔐 **Self-hosted and privacy-focused**
-* 🐳 **Docker-ready**
-* 🗄️ **PostgreSQL** as the source of truth
-* 🔴 **Redis + BullMQ** for background jobs
-* 📦 **S3-compatible object storage** for files
-* 🧩 **Modular monolith architecture**
-* 🛠️ **TypeScript throughout the application**
-
----
-
-## 🖼️ Overview
-
-livo is designed around a simple idea:
-
-> **Your knowledge should belong to you.**
-
-Instead of sending your notes and documents to a hosted SaaS platform, livo can run on infrastructure you control.
+Nimbus runs as a cohesive Next.js modular monolith with dedicated, containerized backing services:
 
 ```text
-                         ┌─────────────────────┐
-                         │       Browser       │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │       livo        │
-                         │      Next.js        │
-                         │                     │
-                         │  UI + API + Modules │
-                         └──────────┬──────────┘
-                                    │
-                ┌───────────────────┼───────────────────┐
-                │                   │                   │
-                ▼                   ▼                   ▼
-        ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-        │ PostgreSQL   │    │    Redis     │    │ Elasticsearch│
-        │              │    │              │    │              │
-        │ Source of    │    │ Jobs/Queues  │    │ Search       │
-        │ Truth        │    │ BullMQ       │    │ Projection   │
-        └──────────────┘    └───────┬──────┘    └──────────────┘
-                                    │
-                                    ▼
-                             ┌──────────────┐
-                             │    MinIO     │
-                             │ / S3 Storage │
-                             └──────────────┘
+                             Browser
+                                |
+                                v
+                        +---------------+
+                        |    Nimbus     |
+                        |   Next.js     |
+                        |   UI + API    |
+                        +-------+-------+
+                                |
+              +-----------------+------------------+
+              |                 |                  |
+              v                 v                  v
+        +-----------+     +-----------+     +-------------+
+        | PostgreSQL|     |   Redis   |     |Elasticsearch|
+        +-----------+     +-----+-----+     +-------------+
+                                |
+                                v
+                           +----------+
+                           | BullMQ   |
+                           | Workers  |
+                           +----------+
+
+                        +---------------+
+                        |     MinIO     |
+                        | S3-compatible |
+                        | object storage|
+                        +---------------+
+```
+
+* **Nimbus (Next.js 15 Standalone)**: Serves the full-featured web UI and API routes. Background workers for note indexing and attachment processing run within the process via BullMQ.
+* **PostgreSQL 16**: Authoritative persistent relational database for users, notebooks, notes, note versions, tags, and attachment metadata.
+* **Redis 7**: High-performance broker for BullMQ background queues with Append-Only File (AOF) persistence.
+* **Elasticsearch 8.17**: Search projection storing note content and 768-dimensional dense vector embeddings for hybrid keyword and semantic retrieval.
+* **MinIO**: S3-compatible high-performance object storage for binary document attachments.
+
+---
+
+## Self-Hosting with Docker
+
+### Prerequisites
+
+* [Docker](https://docs.docker.com/engine/install/) (Engine 24.0 or newer)
+* [Docker Compose](https://docs.docker.com/compose/) (v2.20 or newer)
+
+No Node.js or database installation is required on the host system when using Docker.
+
+---
+
+### Quick Start Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd nimbus
+   ```
+
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   Inspect and edit `.env` if desired. The defaults are pre-configured to work immediately out of the box with the internal Docker network.
+   
+   *(Optional)* To enable Gemini AI features (note summarization, automated title generation, tagging, and Q&A), add your Gemini API key:
+   ```env
+   GEMINI_API_KEY="your-gemini-api-key-here"
+   ```
+
+3. **Build and launch the stack:**
+   ```bash
+   docker compose up -d
+   ```
+
+4. **Verify container status:**
+   ```bash
+   docker compose ps
+   ```
+
+5. **Access Nimbus:**
+   Open your browser and navigate to:
+   ```text
+   http://localhost:3000
+   ```
+
+---
+
+## Automated Startup Flow
+
+When `docker compose up -d` is executed:
+1. **Backing Services Launch**: PostgreSQL, Redis, Elasticsearch, and MinIO start with persistent storage volumes.
+2. **MinIO Bucket Auto-Provisioning**: The `minio-create-bucket` helper initializes the `nimbus-attachments` bucket idempotently.
+3. **Database & Index Initialization**: The `docker-entrypoint.sh` runs `scripts/init-infrastructure.mjs`, which automatically applies all PostgreSQL migrations (`CREATE TABLE IF NOT EXISTS`) and sets up Elasticsearch mappings for notes and chunk vector indices.
+4. **Nimbus Service Starts**: Once health checks pass, the standalone Next.js server accepts requests on port 3000.
+
+---
+
+## Service Ports & Security
+
+To maintain a secure posture, internal backing services are isolated within a private Docker network (`nimbus_network`):
+
+| Service | Container Port | Host Port | Purpose |
+|---|---|---|---|
+| **Nimbus** | `3000` | `3000` (Public) | Web Application & API |
+| **MinIO Console** | `9001` | `9001` (Admin) | MinIO Web Dashboard (Optional) |
+| **PostgreSQL** | `5432` | None | Internal database traffic only |
+| **Redis** | `6379` | None | Internal queue traffic only |
+| **Elasticsearch**| `9200` | None | Internal search traffic only |
+| **MinIO S3 API** | `9000` | None | Internal object storage traffic only |
+
+---
+
+## Useful Docker Commands
+
+### Managing Containers
+
+* **Start the stack in background:**
+  ```bash
+  docker compose up -d
+  ```
+
+* **Stop the stack gracefully:**
+  ```bash
+  docker compose down
+  ```
+
+* **Restart all services:**
+  ```bash
+  docker compose restart
+  ```
+
+* **Rebuild after source code updates:**
+  ```bash
+  docker compose build
+  docker compose up -d
+  ```
+
+### Inspecting Logs & Health
+
+* **View combined logs:**
+  ```bash
+  docker compose logs -f
+  ```
+
+* **View Nimbus application logs:**
+  ```bash
+  docker compose logs -f nimbus
+  ```
+
+* **Check container health:**
+  ```bash
+  docker compose ps
+  ```
+
+* **Query system health endpoint:**
+  ```bash
+  curl -s http://localhost:3000/api/health | jq .
+  ```
+
+---
+
+## Data Persistence & Volumes
+
+Application state is preserved across container restarts and updates using named Docker volumes:
+
+* `nimbus_postgres_data`: All relational tables, user data, notebooks, note versions, and metadata.
+* `nimbus_redis_data`: BullMQ queue state and background job scheduling.
+* `nimbus_elasticsearch_data`: Inverted full-text indices and vector embeddings.
+* `nimbus_minio_data`: Binary file attachments and documents.
+
+> **CRITICAL WARNING ON DATA RETENTION:**
+> Running `docker compose down` will stop and remove containers **WITHOUT** deleting your persistent volumes.
+> However, running:
+> ```bash
+> docker compose down -v
+> ```
+> **DELETES ALL VOLUMES AND PERMANENTLY DESTROYS ALL APPLICATION DATA.**
+> Never use the `-v` flag unless you explicitly intend to perform a full factory reset.
+
+---
+
+## Backup and Recovery
+
+### PostgreSQL Backup
+```bash
+docker exec -t nimbus_postgres pg_dump -U nimbus nimbus > nimbus_backup_$(date +%Y%m%d).sql
+```
+
+### PostgreSQL Restore
+```bash
+cat nimbus_backup.sql | docker exec -i nimbus_postgres psql -U nimbus -d nimbus
+```
+
+### MinIO Attachments Backup
+Backup the MinIO data volume or copy files directly using the MinIO client:
+```bash
+docker run --rm --network nimbus_network -v $(pwd)/backup:/backup minio/mc \
+  mirror http://minio:9000/nimbus-attachments /backup
 ```
 
 ---
 
-# 🏗️ Architecture
+## Updating Nimbus
 
-livo uses a **modular monolith** rather than microservices.
-
-The goal is to keep development and deployment simple while maintaining strong boundaries between domains.
-
-```text
-livo
-│
-├── UI
-│   ├── Landing Page
-│   ├── Workspace
-│   ├── Sidebar
-│   ├── Editor
-│   └── AI UI
-│
-├── API
-│   └── /api/*
-│
-├── Modules
-│   ├── auth
-│   ├── notes
-│   ├── notebooks
-│   ├── attachments
-│   ├── search
-│   ├── tags
-│   └── ai
-│
-└── Services
-    ├── database
-    ├── search
-    ├── storage
-    ├── jobs
-    ├── documents
-    └── AI
-```
-
-### Why a modular monolith?
-
-livo keeps related functionality in the same application while maintaining clear module boundaries.
-
-This provides:
-
-* simpler local development
-* simpler deployment
-* fewer network calls
-* easier debugging
-* easier transactions
-* lower infrastructure overhead
-* the ability to extract modules into services later if necessary
-
----
-
-# 🧰 Technology Stack
-
-| Area                 | Technology                    |
-| -------------------- | ----------------------------- |
-| Frontend             | React                         |
-| Framework            | Next.js 15                    |
-| Language             | TypeScript                    |
-| Editor               | Tiptap                        |
-| Styling              | Tailwind CSS                  |
-| UI                   | shadcn/ui / custom components |
-| Database             | PostgreSQL                    |
-| ORM                  | Drizzle ORM                   |
-| Search               | Elasticsearch                 |
-| Queue                | BullMQ                        |
-| Queue backend        | Redis                         |
-| Object storage       | S3-compatible storage         |
-| Local object storage | MinIO                         |
-| AI                   | Google Gemini / Ollama        |
-| Validation           | Zod                           |
-| Runtime              | Node.js                       |
-| Containerization     | Docker                        |
-
----
-
-# 📁 Project Structure
-
-```text
-.
-├── app/
-│   ├── api/
-│   ├── app/
-│   │   ├── page.tsx
-│   │   └── notes/
-│   │       └── [id]/
-│   │           └── page.tsx
-│   ├── globals.css
-│   ├── layout.tsx
-│   ├── not-found.tsx
-│   └── page.tsx
-│
-├── components/
-│   ├── ai/
-│   ├── editor/
-│   ├── landing/
-│   ├── sidebar/
-│   └── workspace/
-│
-├── src/
-│   └── server/
-│       ├── lib/
-│       │   └── config.ts
-│       │
-│       ├── modules/
-│       │   ├── ai/
-│       │   ├── attachments/
-│       │   ├── auth/
-│       │   ├── notebooks/
-│       │   ├── notes/
-│       │   ├── search/
-│       │   └── tags/
-│       │
-│       └── services/
-│           ├── ai/
-│           ├── db/
-│           ├── documents/
-│           ├── jobs/
-│           ├── search/
-│           └── storage/
-│
-├── drizzle/
-│   └── migrations/
-│
-├── packages/
-│   └── ui/
-│
-├── Dockerfile
-├── .dockerignore
-├── package.json
-├── next.config.ts
-└── README.md
-```
-
----
-
-# 🚀 Getting Started
-
-## Prerequisites
-
-For local development you will need:
-
-* Node.js 22+
-* npm
-* PostgreSQL
-* Redis
-* Elasticsearch
-* S3-compatible object storage
-
-Docker is recommended because it simplifies running the infrastructure.
-
----
-
-## 1. Clone the repository
+To pull the latest code and update your self-hosted deployment:
 
 ```bash
-git clone <your-repository-url>
-cd livo
+git pull origin main
+docker compose build --pull
+docker compose up -d
 ```
+
+Database migrations and index mapping checks will automatically execute during container startup without deleting any existing data.
 
 ---
 
-## 2. Install dependencies
+## Local Development (Without Docker)
+
+You can continue developing locally without running the full Docker stack:
 
 ```bash
+# Install dependencies
 npm install
-```
 
----
-
-## 3. Configure environment variables
-
-Create a local environment file:
-
-```bash
-cp .env.example .env.local
-```
-
-Configure the required services.
-
-Example:
-
-```env
-NODE_ENV=development
-
-DATABASE_URL=postgresql://livo:livo@localhost:5432/livo
-
-REDIS_URL=redis://localhost:6379
-
-ELASTICSEARCH_URL=http://localhost:9200
-
-S3_ENDPOINT=http://localhost:9000
-S3_REGION=us-east-1
-S3_ACCESS_KEY_ID=minio
-S3_SECRET_ACCESS_KEY=minio-secret
-S3_BUCKET=livo
-```
-
-AI configuration can be added depending on the provider being used.
-
-For Gemini:
-
-```env
-GEMINI_API_KEY=your-api-key
-```
-
-For Ollama:
-
-```env
-OLLAMA_BASE_URL=http://localhost:11434
-```
-
-> Never commit `.env.local` or API keys to Git.
-
----
-
-# 🗄️ Database
-
-livo uses PostgreSQL as its primary source of truth.
-
-Generate Drizzle migrations:
-
-```bash
-npm run db:generate
-```
-
-Push the schema to the development database:
-
-```bash
-npm run db:push
-```
-
----
-
-# ▶️ Development
-
-Start the development server:
-
-```bash
+# Start development server
 npm run dev
+
+# Run linting
+npm run lint
+
+# Run production build
+npm run build
+
+# Run database migrations manually
+npm run db:migrate
 ```
-
-The application will be available at:
-
-```text
-http://localhost:3000
-```
-
-### Main routes
-
-| Route             | Purpose             |
-| ----------------- | ------------------- |
-| `/`               | livo landing page |
-| `/app`            | livo workspace    |
-| `/app/notes/[id]` | Individual note     |
-| `/api/*`          | Backend API         |
-
----
-
-# 🐳 Docker
-
-livo can be packaged as a production Next.js container.
-
-The application uses Next.js standalone output.
-
-Make sure `next.config.ts` contains:
-
-```typescript
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
-  output: 'standalone',
-};
-
-export default nextConfig;
-```
-
-## Build the image
-
-```bash
-docker build -t livo .
-```
-
-## Run the application
-
-```bash
-docker run --rm -p 3000:3000 livo
-```
-
-Then open:
-
-```text
-http://localhost:3000
-```
-
-> The application container does not include PostgreSQL, Redis, Elasticsearch, or MinIO. A Docker Compose setup is recommended for running the complete livo stack.
-
----
-
-# 🔄 Data Flow
-
-A note typically follows this flow:
-
-```text
-                 Create / Update Note
-                         │
-                         ▼
-                   livo API
-                         │
-                         ▼
-                    PostgreSQL
-                  Source of Truth
-                         │
-                         ▼
-                  Background Job
-                     BullMQ
-                         │
-                         ▼
-                Document Processing
-                         │
-                         ▼
-                Search Indexing
-                         │
-                         ▼
-                  Elasticsearch
-```
-
-The database remains authoritative.
-
-Elasticsearch is treated as a **search projection**, rather than the primary database.
-
-This allows the search index to be rebuilt if necessary.
-
----
-
-# 📄 Document Processing
-
-livo supports asynchronous document processing.
-
-The general pipeline is:
-
-```text
-Upload
-  │
-  ▼
-Object Storage
-  │
-  ▼
-Background Job
-  │
-  ▼
-Text Extraction
-  │
-  ├── Apache Tika
-  │
-  └── Node.js fallback
-  │
-  ▼
-Content Processing
-  │
-  ▼
-Chunking
-  │
-  ▼
-Elasticsearch Index
-```
-
-Large or expensive processing operations should run asynchronously so they don't block normal API requests.
-
----
-
-# 🔎 Search
-
-Elasticsearch provides full-text search over livo content.
-
-The architecture intentionally separates:
-
-```text
-PostgreSQL
-    │
-    │ authoritative data
-    ▼
-Search indexing pipeline
-    │
-    ▼
-Elasticsearch
-    │
-    │ optimized search projection
-    ▼
-Search API
-```
-
-If the Elasticsearch index is lost, it should be possible to rebuild it from PostgreSQL.
-
----
-
-# 🤖 AI
-
-livo is designed to support multiple AI providers.
-
-Potential providers include:
-
-* Google Gemini
-* Ollama
-* other OpenAI-compatible/local providers
-
-AI functionality can be used for tasks such as:
-
-* summarization
-* question answering
-* note assistance
-* document understanding
-* content extraction
-* knowledge discovery
-
-AI should operate on the user's data while respecting the deployment's configured privacy model.
-
----
-
-# 📦 Object Storage
-
-Attachments and uploaded documents should not be stored directly inside PostgreSQL.
-
-livo uses S3-compatible object storage.
-
-For self-hosted installations, **MinIO** can be used.
-
-```text
-livo
-   │
-   ▼
-S3-compatible API
-   │
-   ├── AWS S3
-   ├── MinIO
-   └── Other S3-compatible storage
-```
-
----
-
-# 🔐 Security
-
-livo is designed with self-hosting and data ownership in mind.
-
-Production deployments should:
-
-* use HTTPS
-* use strong database credentials
-* use strong o

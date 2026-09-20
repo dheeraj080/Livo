@@ -1,24 +1,32 @@
-version: "3.8"
-
 services:
-  livo:
-    build: .
-    container_name: livo-app
+  # ============================================================================
+  # Nimbus Next.js Modular Monolith Application
+  # ============================================================================
+  nimbus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nimbus_app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://livo:livopass@postgres:5432/livo
+      - APP_URL=${APP_URL:-http://localhost:3000}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-nimbus}:${POSTGRES_PASSWORD:-nimbus_password}@postgres:5432/${POSTGRES_DB:-nimbus}
       - REDIS_URL=redis://redis:6379
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - ELASTICSEARCH_API_KEY=${ELASTICSEARCH_API_KEY:-}
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME:-}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD:-}
       - S3_ENDPOINT=http://minio:9000
-      - S3_ACCESS_KEY=minioadmin
-      - S3_SECRET_KEY=minioadmin
-      - S3_BUCKET=livo
-      - S3_REGION=us-east-1
-      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - S3_REGION=${S3_REGION:-us-east-1}
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER:-nimbus}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD:-nimbus_secret_key}
+      - S3_BUCKET=${S3_BUCKET:-nimbus-attachments}
+      - S3_FORCE_PATH_STYLE=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,99 +36,141 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      minio-create-bucket:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
     networks:
-      - livo-network
+      - nimbus_network
 
+  # ============================================================================
+  # PostgreSQL (Primary Relational Database)
+  # ============================================================================
   postgres:
     image: postgres:16-alpine
-    container_name: livo-postgres
+    container_name: nimbus_postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=livo
-      - POSTGRES_PASSWORD=livopass
-      - POSTGRES_DB=livo
+      POSTGRES_DB: ${POSTGRES_DB:-nimbus}
+      POSTGRES_USER: ${POSTGRES_USER:-nimbus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nimbus_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U livo"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-nimbus} -d $${POSTGRES_DB:-nimbus}"]
+      interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 10s
     networks:
-      - livo-network
+      - nimbus_network
 
+  # ============================================================================
+  # Redis (BullMQ Queues & Background Job Coordination)
+  # ============================================================================
   redis:
     image: redis:7-alpine
-    container_name: livo-redis
+    container_name: nimbus_redis
     restart: unless-stopped
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
+      start_period: 5s
     networks:
-      - livo-network
+      - nimbus_network
 
+  # ============================================================================
+  # Elasticsearch (Full-Text Search & Dense Vector Embeddings)
+  # ============================================================================
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
-    container_name: livo-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+    container_name: nimbus_elasticsearch
     restart: unless-stopped
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - xpack.security.enrollment.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-      - "9300:9300"
     healthcheck:
-      test:
-        ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 20s
-      timeout: 10s
-      retries: 5
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
     networks:
-      - livo-network
+      - nimbus_network
 
+  # ============================================================================
+  # MinIO (S3-Compatible Object Storage for Document Attachments)
+  # ============================================================================
   minio:
     image: minio/minio:latest
-    container_name: livo-minio
+    container_name: nimbus_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-nimbus}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-nimbus_secret_key}
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      # Expose MinIO Web Console only for admin review; S3 API (9000) remains private
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -f http://localhost:9000/minio/health/live || exit 1",
-        ]
-      interval: 20s
-      timeout: 10s
+      test: ["CMD-SHELL", "curl -s http://localhost:9000/minio/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
       retries: 5
+      start_period: 10s
     networks:
-      - livo-network
+      - nimbus_network
 
+  # ============================================================================
+  # MinIO Bucket Auto-Provisioner (Idempotent Initialization)
+  # ============================================================================
+  minio-create-bucket:
+    image: minio/mc:latest
+    container_name: nimbus_minio_init
+    restart: "no"
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set nimbusminio http://minio:9000 $${MINIO_ROOT_USER:-nimbus} $${MINIO_ROOT_PASSWORD:-nimbus_secret_key};
+      /usr/bin/mc mb --ignore-existing nimbusminio/$${S3_BUCKET:-nimbus-attachments};
+      exit 0;
+      "
+    networks:
+      - nimbus_network
+
+# ==============================================================================
+# Persistent Named Volumes
+# ==============================================================================
 volumes:
   postgres_data:
+    name: nimbus_postgres_data
   redis_data:
+    name: nimbus_redis_data
   elasticsearch_data:
+    name: nimbus_elasticsearch_data
   minio_data:
+    name: nimbus_minio_data
 
+# ==============================================================================
+# Private Isolated Network
+# ==============================================================================
 networks:
-  livo-network:
+  nimbus_network:
+    name: nimbus_network
     driver: bridge
