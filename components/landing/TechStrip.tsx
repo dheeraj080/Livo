@@ -60,10 +60,10 @@ export function TechStrip() {
   return (
     <section
       id="technologies"
-      className="py-16 border-y border-zinc-800/80 bg-[#09090b] relative scroll-mt-20"
+      className="py-8 sm:py-10 md:py-12 border-y border-zinc-800/80 bg-[#09090b] relative scroll-mt-20"
     >
       <ScrollReveal className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-5 gap-4">
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 uppercase tracking-wider mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
@@ -74,7 +74,7 @@ export function TechStrip() {
             </h2>
           </div>
           <p className="text-xs text-zinc-400 max-w-md">
-            Livo integrates industry-standard open-source systems. No custom proprietary databases, no vendor lock-in, and zero black-box storage engines.
+            Nimbus integrates industry-standard open-source systems. No custom proprietary databases, no vendor lock-in, and zero black-box storage engines.
           </p>
         </div>
 
@@ -112,9 +112,9 @@ export function TechStrip() {
           })}
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-zinc-500 text-center font-mono">
+        <div className="mt-5 flex items-center justify-center gap-2 text-xs text-zinc-500 text-center font-mono">
           <CheckCircle className="w-3.5 h-3.5 text-zinc-400" />
-          <span>Technologies shown reflect Livo modular backend architecture. Independent open-source integration.</span>
+          <span>Technologies shown reflect Nimbus modular backend architecture. Independent open-source integration.</span>
         </div>
       </ScrollReveal>
     </section>

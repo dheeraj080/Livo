@@ -16,7 +16,7 @@ export function Hero({ onGetStarted }: HeroProps) {
   return (
     <section
       id="hero"
-      className="relative pt-32 pb-24 md:pt-44 md:pb-36 lg:pt-48 lg:pb-40 overflow-hidden"
+      className="relative pt-20 pb-10 sm:pt-24 sm:pb-12 md:pt-28 md:pb-14 lg:pt-32 lg:pb-16 overflow-hidden"
     >
       {/* Subtle developer architectural background grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a15_1px,transparent_1px),linear-gradient(to_bottom,#27272a15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -27,20 +27,15 @@ export function Hero({ onGetStarted }: HeroProps) {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Eyebrow - ~50ms delay */}
         <div
-          className={`flex justify-center mb-6 transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[50ms] ${
+          className={`flex justify-center mb-4 sm:mb-5 transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[50ms] ${
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2.5'
           } motion-reduce:!opacity-100 motion-reduce:!transform-none motion-reduce:!transition-none`}
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/90 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-            <span className="font-mono text-[11px] sm:text-xs text-zinc-300 font-semibold tracking-wider uppercase">
-              SELF-HOSTED • OPEN INFRASTRUCTURE
-            </span>
-          </div>
+          
         </div>
 
         {/* Headline & Value Proposition */}
-        <div className="text-center max-w-4xl mx-auto space-y-6">
+        <div className="text-center max-w-4xl mx-auto space-y-5">
           {/* Headline - ~100ms delay */}
           <h1
             className={`text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-bold tracking-tight text-white leading-[1.08] transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[100ms] ${
@@ -63,7 +58,7 @@ export function Hero({ onGetStarted }: HeroProps) {
 
           {/* Primary & Secondary CTAs - ~200ms delay */}
           <div
-            className={`flex flex-wrap items-center justify-center gap-3.5 pt-2 transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[200ms] ${
+            className={`flex flex-wrap items-center justify-center gap-3.5 pt-1.5 transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[200ms] ${
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
             } motion-reduce:!opacity-100 motion-reduce:!transform-none motion-reduce:!transition-none`}
           >
@@ -78,7 +73,7 @@ export function Hero({ onGetStarted }: HeroProps) {
             </Link>
 
             <a
-              href="https://github.com/dheeraj080/Livo"
+              href="https://github.com"
               target="_blank"
               rel="noopener noreferrer"
               id="hero-github-btn"
@@ -92,7 +87,7 @@ export function Hero({ onGetStarted }: HeroProps) {
 
         {/* Prominent Product UI Mockup - ~250ms delay, translateY 12px -> 0, subtle hover */}
         <div
-          className={`mt-16 sm:mt-20 max-w-6xl mx-auto relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[250ms] ${
+          className={`mt-8 sm:mt-9 md:mt-10 max-w-6xl mx-auto relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[250ms] ${
             mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
           } motion-reduce:!opacity-100 motion-reduce:!transform-none motion-reduce:!transition-none`}
         >
@@ -102,7 +97,7 @@ export function Hero({ onGetStarted }: HeroProps) {
 
           {/* Subtle Deployment Indicator - ~300ms delay */}
           <div
-            className={`mt-6 flex items-center justify-center transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[300ms] ${
+            className={`mt-4 flex items-center justify-center transition-all duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] delay-[300ms] ${
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
             } motion-reduce:!opacity-100 motion-reduce:!transform-none motion-reduce:!transition-none`}
           >
@@ -111,15 +106,15 @@ export function Hero({ onGetStarted }: HeroProps) {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                 Docker Compose
               </span>
-              <span className="text-zinc-600">→</span>
-              <span className="text-zinc-300 font-semibold">Livo</span>
-              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-600">&rarr;</span>
+              <span className="text-zinc-300 font-semibold">Nimbus</span>
+              <span className="text-zinc-600">&middot;</span>
               <span>PostgreSQL</span>
-              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-600">&middot;</span>
               <span>Redis</span>
-              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-600">&middot;</span>
               <span>Elasticsearch</span>
-              <span className="text-zinc-600">·</span>
+              <span className="text-zinc-600">&middot;</span>
               <span>MinIO</span>
             </div>
           </div>

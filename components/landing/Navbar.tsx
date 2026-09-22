@@ -25,7 +25,7 @@ export function Navbar({ onGetStarted }: NavbarProps) {
     { label: 'Features', href: '#features', external: false },
     { label: 'Self-Hosting', href: '#self-hosting', external: false },
     { label: 'Docs', href: '#docs', external: false },
-    { label: 'GitHub', href: 'https://github.com/dheeraj080/Livo', external: true },
+    { label: 'GitHub', href: 'https://github.com', external: true },
   ];
 
   return (
@@ -44,12 +44,12 @@ export function Navbar({ onGetStarted }: NavbarProps) {
             href="#"
             id="navbar-brand-link"
             className="flex items-center gap-2.5 group transition-opacity shrink-0"
-            aria-label="Livo Home"
+            aria-label="Nimbus Home"
           >
             <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center shadow-sm">
               <div className="w-3 h-3 bg-black rounded-full" />
             </div>
-            <span className="text-[17px] font-bold tracking-tight text-white">Livo</span>
+            <span className="text-[17px] font-bold tracking-tight text-white">Nimbus</span>
           </a>
 
           {/* Desktop Navigation Links */}

@@ -8,35 +8,35 @@ export function PrivacySection() {
   const [selectedProvider, setSelectedProvider] = useState<'local' | 'cloud'>('local');
 
   return (
-    <section id="privacy" className="py-24 bg-[#09090b] border-t border-zinc-800/80 relative scroll-mt-20">
+    <section id="privacy" className="py-12 sm:py-14 md:py-16 lg:py-20 bg-[#09090b] border-t border-zinc-800/80 relative scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <ScrollReveal className="max-w-3xl mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs text-zinc-400 font-mono mb-4">
+        <ScrollReveal className="max-w-3xl mb-5 sm:mb-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs text-zinc-400 font-mono mb-3 sm:mb-3.5">
             <Lock className="w-3.5 h-3.5 text-zinc-400" />
             <span>Data Autonomy</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
             AI without giving up ownership.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-zinc-400">
-            You don&apos;t have to sacrifice modern AI intelligence to keep your data private. Livo gives you architectural choice over where and how your prompts are processed.
+          <p className="mt-3 sm:mt-3.5 text-base sm:text-lg text-zinc-400">
+            You don&apos;t have to sacrifice modern AI intelligence to keep your data private. Nimbus gives you architectural choice over where and how your prompts are processed.
           </p>
         </ScrollReveal>
 
         {/* Provider Comparison Cards */}
-        <ScrollReveal delay={80} className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+        <ScrollReveal delay={80} className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-4 sm:mb-5">
           {/* OPTION 1: LOCAL AI (Ollama) */}
           <div
             id="privacy-card-local"
-            className={`rounded-xl border p-6 sm:p-8 transition-all duration-200 active:scale-[0.99] cursor-pointer ${
+            className={`rounded-xl border p-5 sm:p-6 transition-all duration-200 active:scale-[0.99] cursor-pointer ${
               selectedProvider === 'local'
                 ? 'bg-[#18181b] border-zinc-600 shadow-sm'
                 : 'bg-[#121214] border-zinc-800 hover:border-zinc-700'
             }`}
             onClick={() => setSelectedProvider('local')}
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-200">
                 <Cpu className="w-5 h-5" />
               </div>
@@ -48,11 +48,11 @@ export function PrivacySection() {
             <h3 className="text-xl font-bold text-white mb-2">
               Local AI Engine via Ollama
             </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+            <p className="text-xs text-zinc-400 leading-relaxed mb-4">
               Run models like Llama 3.3, Mistral, Gemma, or Qwen directly on your server&apos;s CPU or GPU. Prompts and note embeddings never leave your local physical machine.
             </p>
 
-            <div className="space-y-3 text-xs text-zinc-300 border-t border-zinc-800/80 pt-5">
+            <div className="space-y-2.5 text-xs text-zinc-300 border-t border-zinc-800/80 pt-4">
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
                 <span>Zero outbound bytes — runs seamlessly without an active internet connection.</span>
@@ -67,7 +67,7 @@ export function PrivacySection() {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800/80 font-mono text-[11px] text-zinc-500">
+            <div className="mt-4 pt-3.5 border-t border-zinc-800/80 font-mono text-[11px] text-zinc-500">
               Ideal for: Confidential research, health journals, proprietary source code.
             </div>
           </div>
@@ -75,14 +75,14 @@ export function PrivacySection() {
           {/* OPTION 2: CLOUD AI (Gemini) */}
           <div
             id="privacy-card-cloud"
-            className={`rounded-xl border p-6 sm:p-8 transition-all duration-200 active:scale-[0.99] cursor-pointer ${
+            className={`rounded-xl border p-5 sm:p-6 transition-all duration-200 active:scale-[0.99] cursor-pointer ${
               selectedProvider === 'cloud'
                 ? 'bg-[#18181b] border-zinc-600 shadow-sm'
                 : 'bg-[#121214] border-zinc-800 hover:border-zinc-700'
             }`}
             onClick={() => setSelectedProvider('cloud')}
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <div className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-200">
                 <Sparkles className="w-5 h-5 text-sky-400" />
               </div>
@@ -94,14 +94,14 @@ export function PrivacySection() {
             <h3 className="text-xl font-bold text-white mb-2">
               Cloud AI via Gemini API
             </h3>
-            <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+            <p className="text-xs text-zinc-400 leading-relaxed mb-4">
               Connect your own direct Gemini API key for massive 1M+ token context windows and cutting-edge reasoning across large multi-year archives.
             </p>
 
-            <div className="space-y-3 text-xs text-zinc-300 border-t border-zinc-800/80 pt-5">
+            <div className="space-y-2.5 text-xs text-zinc-300 border-t border-zinc-800/80 pt-4">
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Direct client-to-API communication with zero Livo intermediary proxy servers.</span>
+                <span>Direct client-to-API communication with zero Nimbus intermediary proxy servers.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
@@ -113,15 +113,15 @@ export function PrivacySection() {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-zinc-800/80 font-mono text-[11px] text-zinc-500">
+            <div className="mt-4 pt-3.5 border-t border-zinc-800/80 font-mono text-[11px] text-zinc-500">
               Ideal for: Heavy reasoning tasks, huge context synthesis, low-spec servers.
             </div>
           </div>
         </ScrollReveal>
 
         {/* Pluggable Architecture Breakdown */}
-        <ScrollReveal delay={120} className="rounded-xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 shadow-xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-zinc-800 mb-6">
+        <ScrollReveal delay={120} className="rounded-xl border border-zinc-800 bg-[#121214] p-4 sm:p-6 lg:p-7 shadow-xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-800 mb-4 sm:mb-5">
             <div>
               <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 font-medium uppercase mb-1">
                 <Code className="w-3.5 h-3.5 text-zinc-400" />

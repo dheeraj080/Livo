@@ -22,12 +22,12 @@ export function ProductSection() {
   ];
 
   return (
-    <section id="product" className="py-24 md:py-32 lg:py-36 border-t border-zinc-800/40 bg-[#09090b] relative overflow-hidden scroll-mt-20">
+    <section id="product" className="py-12 sm:py-14 md:py-16 lg:py-20 border-t border-zinc-800/40 bg-[#09090b] relative overflow-hidden scroll-mt-20">
       <span id="knowledge-layer" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
+        <ScrollReveal className="max-w-3xl mb-4 sm:mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-3 sm:mb-3.5">
             <Layers className="w-3.5 h-3.5 text-sky-400" />
             <span>One Connected Knowledge Layer</span>
           </div>
@@ -35,14 +35,14 @@ export function ProductSection() {
             Unify Markdown notes, technical specs, and PDFs.<br />
             <span className="text-zinc-500">Connected through a structured document graph.</span>
           </h2>
-          <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
+          <p className="mt-3 sm:mt-3.5 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
             Organize long-form Markdown, OCR-scanned PDFs, code snippets, and hierarchical notebooks in a single cohesive workspace backed by PostgreSQL and Elasticsearch indexing.
           </p>
         </ScrollReveal>
 
         {/* View Switcher Pills */}
         <ScrollReveal delay={80}>
-          <div className="flex flex-wrap items-center gap-2 mb-8">
+          <div className="flex flex-wrap items-center gap-2 mb-4 sm:mb-5">
             {layerPills.map((pill) => {
               const Icon = pill.icon;
               const isActive = activeLayer === pill.id;
@@ -66,10 +66,10 @@ export function ProductSection() {
         </ScrollReveal>
 
         {/* One Large Unified Visual Workspace */}
-        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-2xl">
+        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-5 sm:p-6 lg:p-7 xl:p-8 shadow-2xl">
           {/* TAB 1: Markdown & Math */}
           {activeLayer === 'editor' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
               <div className="lg:col-span-5 space-y-4">
                 <span className="text-xs sm:text-[13px] font-mono text-sky-400 font-semibold uppercase tracking-wider">
                   Extensible Editor Kernel
@@ -127,7 +127,7 @@ export function ProductSection() {
 
           {/* TAB 2: Attachments & OCR */}
           {activeLayer === 'attachments' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
               <div className="lg:col-span-5 space-y-4">
                 <span className="text-xs sm:text-[13px] font-mono text-sky-400 font-semibold uppercase tracking-wider">
                   Deep Media Parsing
@@ -136,7 +136,7 @@ export function ProductSection() {
                   Attach PDFs, whitepapers, & diagrams. All fully OCR-indexed.
                 </h3>
                 <p className="text-[15px] sm:text-base text-zinc-400 leading-relaxed">
-                  Drag and drop technical papers, system diagrams, and research notes. Livo automatically runs optical character recognition on images and builds full-text search tokens across every page.
+                  Drag and drop technical papers, system diagrams, and research notes. Nimbus automatically runs optical character recognition on images and builds full-text search tokens across every page.
                 </p>
 
                 <div className="space-y-3 pt-2 font-mono text-xs sm:text-[13px] text-zinc-300">
@@ -185,7 +185,7 @@ export function ProductSection() {
 
           {/* TAB 3: Taxonomy & Graph */}
           {activeLayer === 'taxonomy' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
               <div className="lg:col-span-5 space-y-4">
                 <span className="text-xs sm:text-[13px] font-mono text-sky-400 font-semibold uppercase tracking-wider">
                   Organized Knowledge
@@ -247,7 +247,7 @@ export function ProductSection() {
 
           {/* TAB 4: Search & Indexing */}
           {activeLayer === 'sync' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
               <div className="lg:col-span-5 space-y-4">
                 <span className="text-xs sm:text-[13px] font-mono text-sky-400 font-semibold uppercase tracking-wider">
                   Elasticsearch Full-Text Engine

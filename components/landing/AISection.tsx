@@ -53,14 +53,14 @@ export function AISection() {
   ];
 
   return (
-    <section id="features" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
+    <section id="features" className="py-12 sm:py-14 md:py-16 lg:py-20 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <span id="ai" className="scroll-mt-24" />
       <span id="search" className="scroll-mt-24" />
       <span id="ai-search" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
+        <ScrollReveal className="max-w-3xl mb-5 sm:mb-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-3 sm:mb-3.5">
             <Search className="w-3.5 h-3.5 text-sky-400" />
             <span>Knowledge Search & Grounding</span>
           </div>
@@ -68,7 +68,7 @@ export function AISection() {
             Ask your knowledge base.<br />
             <span className="text-zinc-500">Grounded with verifiable citations.</span>
           </h2>
-          <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
+          <p className="mt-3 sm:mt-3.5 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
             Search and reason across notes, technical specs, and parsed PDFs instead of digging through tabs. Every AI response directly links to exact paragraph sources in your vault.
           </p>
         </ScrollReveal>
@@ -76,7 +76,7 @@ export function AISection() {
         {/* Large Dominant Product Demonstration Console */}
         <ScrollReveal delay={100} className="rounded-2xl border border-zinc-800 bg-[#121214] shadow-2xl overflow-hidden">
           {/* Top Window Navigation Bar */}
-          <div className="px-6 py-4 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+          <div className="px-5 sm:px-6 py-3 sm:py-3.5 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-zinc-700/80" />
@@ -84,7 +84,7 @@ export function AISection() {
                 <span className="w-3 h-3 rounded-full bg-zinc-700/80" />
               </div>
               <span className="text-xs sm:text-[13px] font-mono text-zinc-400 border-l border-zinc-800 pl-3">
-                Livo / knowledge-query
+                nimbus / knowledge-query
               </span>
             </div>
 
@@ -94,13 +94,13 @@ export function AISection() {
             </div>
           </div>
 
-          <div className="p-6 sm:p-8 lg:p-10 xl:p-12 space-y-8 lg:space-y-10">
+          <div className="p-5 sm:p-6 lg:p-7 xl:p-8 space-y-5 lg:space-y-6">
             {/* 1. USER QUESTION */}
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <div className="text-[11px] sm:text-xs font-mono text-zinc-500 uppercase tracking-wider font-semibold">
                 User Query
               </div>
-              <div className="flex items-center gap-3.5 px-4 sm:px-5 py-4 rounded-xl bg-[#18181b] border border-zinc-700/80 text-white font-medium text-sm sm:text-base shadow-inner">
+              <div className="flex items-center gap-3.5 px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl bg-[#18181b] border border-zinc-700/80 text-white font-medium text-sm sm:text-base shadow-inner">
                 <Search className="w-5 h-5 text-sky-400 shrink-0" />
                 <span className="flex-1 font-sans">
                   What did we decide about the ingestion architecture?
@@ -113,7 +113,7 @@ export function AISection() {
             </div>
 
             {/* 2. AI GENERATED ANSWER */}
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-xs sm:text-[13px] font-mono text-zinc-400">
                 <span className="text-sky-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
                   <Search className="w-3.5 h-3.5" />
@@ -122,7 +122,7 @@ export function AISection() {
                 <span className="text-zinc-500">Retrieval latency: 34ms</span>
               </div>
 
-              <div className="rounded-xl bg-[#18181b] border border-zinc-800 p-6 sm:p-7 space-y-4 text-sm sm:text-[15px] text-zinc-200 leading-relaxed border-l-2 border-l-sky-400 shadow-sm">
+              <div className="rounded-xl bg-[#18181b] border border-zinc-800 p-4 sm:p-5 space-y-3 text-sm sm:text-[15px] text-zinc-200 leading-relaxed border-l-2 border-l-sky-400 shadow-sm">
                 <p>
                   You decided on an <strong className="text-white font-semibold">asynchronous, queue-based ingestion pipeline</strong> to decouple document uploads from heavy processing:
                 </p>

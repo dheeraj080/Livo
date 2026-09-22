@@ -64,7 +64,7 @@ export function SelfHostingSection() {
     {
       step: '1',
       title: 'Clone',
-      detail: 'git clone https://github.com/dheeraj080/Livo.git',
+      detail: 'git clone https://github.com/nimbus-notes/nimbus.git',
     },
     {
       step: '2',
@@ -79,32 +79,32 @@ export function SelfHostingSection() {
     },
     {
       step: '4',
-      title: 'Open Livo',
+      title: 'Open Nimbus',
       detail: 'http://localhost:3000',
     },
   ];
 
   return (
-    <section id="self-hosting" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
+    <section id="self-hosting" className="py-12 sm:py-14 md:py-16 lg:py-20 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <span id="privacy" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
+        <ScrollReveal className="max-w-3xl mb-5 sm:mb-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-3 sm:mb-3.5">
             <Server className="w-3.5 h-3.5 text-sky-400" />
             <span>SELF-HOSTED DOCKER COMPOSE</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold tracking-tight text-white leading-[1.15]">
             Your infrastructure. Your data.
           </h2>
-          <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
-            Livo is designed to run on infrastructure you control. Deploy the complete stack with Docker Compose and operate your notes, documents, attachments, search index, and AI configuration directly.
+          <p className="mt-3 sm:mt-3.5 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
+            Nimbus is designed to run on infrastructure you control. Deploy the complete stack with Docker Compose and operate your notes, documents, attachments, search index, and AI configuration directly.
           </p>
         </ScrollReveal>
 
         {/* 1. Actual Architecture Stack Diagram - Subtle sequential reveal */}
-        <div ref={archRef} className="rounded-2xl border border-zinc-800 bg-[#121214] shadow-2xl p-6 sm:p-8 lg:p-10 mb-12 relative">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-800/80">
+        <div ref={archRef} className="rounded-2xl border border-zinc-800 bg-[#121214] shadow-2xl p-4 sm:p-6 lg:p-7 mb-4 sm:mb-5 relative">
+          <div className="flex items-center justify-between mb-5 pb-3 border-b border-zinc-800/80">
             <div className="flex items-center gap-2 font-mono text-xs sm:text-[13px] text-zinc-300">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
               <span>Complete Stack Architecture</span>
@@ -114,7 +114,7 @@ export function SelfHostingSection() {
 
           {/* Diagram Layout */}
           <div className="flex flex-col items-center max-w-4xl mx-auto">
-            {/* Top Node: Livo */}
+            {/* Top Node: Nimbus */}
             <div
               className={`w-full max-w-xs p-4 rounded-xl bg-zinc-900 border border-zinc-700 text-center shadow-lg relative group transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 archRevealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
@@ -123,7 +123,7 @@ export function SelfHostingSection() {
               <div className="text-[11px] font-mono text-sky-400 uppercase tracking-wider font-semibold mb-1">
                 Application Layer
               </div>
-              <div className="text-base sm:text-lg font-bold text-white">Livo</div>
+              <div className="text-base sm:text-lg font-bold text-white">Nimbus</div>
               <div className="text-xs font-mono text-zinc-400 mt-0.5">Next.js Web App & API</div>
             </div>
 
@@ -201,16 +201,16 @@ export function SelfHostingSection() {
         </div>
 
         {/* 2. Infrastructure Detail Cards */}
-        <ScrollReveal delay={60} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
+        <ScrollReveal delay={60} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 mb-4 sm:mb-5">
           {infraCards.map((card) => {
             const Icon = card.icon;
             return (
               <div
                 key={card.name}
-                className="flex flex-col justify-between p-5 sm:p-6 rounded-xl bg-[#121214] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
+                className="flex flex-col justify-between p-4 sm:p-5 rounded-xl bg-[#121214] border border-zinc-800 hover:border-zinc-700 transition-colors shadow-sm"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center text-zinc-200">
                       <Icon className="w-4 h-4 text-sky-400" />
                     </div>
@@ -229,8 +229,8 @@ export function SelfHostingSection() {
         </ScrollReveal>
 
         {/* 3. Compact Deployment Flow */}
-        <ScrollReveal delay={100} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 mb-12">
-          <div className="max-w-2xl mb-6">
+        <ScrollReveal delay={100} className="rounded-2xl border border-zinc-800 bg-[#121214] p-4 sm:p-6 lg:p-7 mb-4 sm:mb-5">
+          <div className="max-w-2xl mb-4 sm:mb-5">
             <div className="text-xs font-mono text-sky-400 uppercase tracking-wider font-semibold mb-1">
               DEPLOYMENT FLOW
             </div>
@@ -240,7 +240,7 @@ export function SelfHostingSection() {
           </div>
 
           {/* Steps Timeline */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-5">
             {deploymentSteps.map((step, idx) => (
               <div
                 key={step.step}
@@ -299,7 +299,7 @@ export function SelfHostingSection() {
           </div>
 
           {/* Optional Helper Commands */}
-          <div className="mt-4 pt-4 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-zinc-400">
+          <div className="mt-3.5 pt-3.5 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-zinc-400">
             <div className="flex flex-wrap items-center gap-4">
               <span>
                 Inspect logs: <code className="text-zinc-300">docker compose logs -f</code>
@@ -314,7 +314,7 @@ export function SelfHostingSection() {
         </ScrollReveal>
 
         {/* 4. Data Ownership & Governance Statement */}
-        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10">
+        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-4 sm:p-6 lg:p-7">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-mono text-zinc-400 mb-3">
               <Shield className="w-4 h-4 text-sky-400" />
@@ -324,7 +324,7 @@ export function SelfHostingSection() {
               Keep control of your data.
             </h3>
             <p className="mt-3 text-sm sm:text-base text-zinc-300 leading-relaxed">
-              Livo doesn&apos;t require your knowledge base to live on someone else&apos;s infrastructure. Run the application and its supporting services yourself and decide where your data and AI workloads live.
+              Nimbus doesn&apos;t require your knowledge base to live on someone else&apos;s infrastructure. Run the application and its supporting services yourself and decide where your data and AI workloads live.
             </p>
             <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed">
               Store notes and attachments in local Docker volumes, run inference through local models or direct API keys, and keep your data organized under your own operational terms.

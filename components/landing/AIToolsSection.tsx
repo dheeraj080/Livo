@@ -108,26 +108,26 @@ export function AIToolsSection() {
   const current = tools[selectedTool];
 
   return (
-    <section id="ai-engine" className="py-24 md:py-32 lg:py-36 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
+    <section id="ai-engine" className="py-12 sm:py-14 md:py-16 lg:py-20 bg-[#09090b] border-t border-zinc-800/40 relative scroll-mt-20">
       <span id="ai-tools" className="scroll-mt-24" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <ScrollReveal className="max-w-3xl mb-14 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-4">
+        <ScrollReveal className="max-w-3xl mb-4 sm:mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/80 text-xs sm:text-[13px] text-zinc-400 font-mono mb-3 sm:mb-3.5">
             <Cpu className="w-3.5 h-3.5 text-sky-400" />
             <span>AI Inference & Cursor Actions</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold tracking-tight text-white leading-[1.15]">
             Choose where your AI runs.
           </h2>
-          <p className="mt-4 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
-            Connect Livo to supported AI providers such as Gemini, or configure local AI infrastructure where supported. Trigger discrete model operations directly from your editing cursor.
+          <p className="mt-3 sm:mt-3.5 text-base sm:text-lg lg:text-[19px] text-zinc-400 leading-relaxed max-w-2xl">
+            Connect Nimbus to supported AI providers such as Gemini, or configure local AI infrastructure where supported. Trigger discrete model operations directly from your editing cursor.
           </p>
         </ScrollReveal>
 
         {/* Action Picker Ribbon */}
         <ScrollReveal delay={80}>
-          <div className="flex flex-wrap items-center gap-2 mb-8">
+          <div className="flex flex-wrap items-center gap-2 mb-4 sm:mb-5">
             {tools.map((tool) => {
               const Icon = tool.icon;
               const isSelected = selectedTool === tool.id;
@@ -151,8 +151,8 @@ export function AIToolsSection() {
         </ScrollReveal>
 
         {/* Interactive Action Canvas */}
-        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-6 sm:p-8 lg:p-10 xl:p-12 shadow-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800 mb-6 gap-3">
+        <ScrollReveal delay={120} className="rounded-2xl border border-zinc-800 bg-[#121214] p-5 sm:p-6 lg:p-7 xl:p-8 shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-zinc-800 mb-4 gap-3">
             <div className="flex items-center gap-2.5">
               <span className="w-2 h-2 rounded-full bg-sky-400" />
               <h3 className="text-sm sm:text-base font-semibold text-white">
@@ -189,13 +189,13 @@ export function AIToolsSection() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Input Note Excerpt */}
-            <div className="lg:col-span-6 bg-[#18181b] rounded-xl border border-zinc-800 p-5 sm:p-6 flex flex-col justify-between space-y-4">
+            <div className="lg:col-span-6 bg-[#18181b] rounded-xl border border-zinc-800 p-4 sm:p-5 flex flex-col justify-between space-y-3">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs sm:text-[13px] font-mono text-zinc-400">
                   <span>{current.inputLabel}</span>
                   <span className="text-zinc-500">Editor State</span>
                 </div>
-                <p className="text-xs sm:text-[13px] text-zinc-300 leading-relaxed font-mono whitespace-pre-line bg-zinc-900/60 p-4 rounded-lg border border-zinc-800/80">
+                <p className="text-xs sm:text-[13px] text-zinc-300 leading-relaxed font-mono whitespace-pre-line bg-zinc-900/60 p-3.5 sm:p-4 rounded-lg border border-zinc-800/80">
                   {current.inputText}
                 </p>
               </div>
@@ -207,7 +207,7 @@ export function AIToolsSection() {
             </div>
 
             {/* AI Synthesized Output */}
-            <div className="lg:col-span-6 bg-[#18181b] rounded-xl border border-zinc-800 p-5 sm:p-6 flex flex-col justify-between space-y-4 border-l-2 border-l-sky-400 shadow-sm">
+            <div className="lg:col-span-6 bg-[#18181b] rounded-xl border border-zinc-800 p-4 sm:p-5 flex flex-col justify-between space-y-3 border-l-2 border-l-sky-400 shadow-sm">
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs sm:text-[13px] font-mono">
                   <span className="text-sky-400 font-semibold flex items-center gap-1.5">

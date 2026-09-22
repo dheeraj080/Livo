@@ -11,25 +11,25 @@ interface FinalCTAProps {
 
 export function FinalCTA({ onGetStarted }: FinalCTAProps) {
   return (
-    <section id="cta" className="py-28 md:py-36 lg:py-40 bg-[#09090b] border-t border-zinc-800/50 relative overflow-hidden scroll-mt-20">
+    <section id="cta" className="py-12 sm:py-14 md:py-16 lg:py-20 bg-[#09090b] border-t border-zinc-800/50 relative overflow-hidden scroll-mt-20">
       {/* Subtle radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_50%,rgba(24,24,27,0.5),transparent_100%)] pointer-events-none" />
 
-      <ScrollReveal className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+      <ScrollReveal className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-5">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-zinc-800 bg-[#121214] text-xs sm:text-[13px] text-zinc-300 font-mono">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
           <span>Self-Hosted Stack &bull; Open Source</span>
         </div>
 
         <h2 className="text-3xl sm:text-5xl lg:text-[56px] font-bold tracking-tight text-white leading-[1.1] max-w-3xl mx-auto">
-          Run Livo on your infrastructure.
+          Run Nimbus on your infrastructure.
         </h2>
 
         <p className="text-base sm:text-lg lg:text-[19px] text-zinc-400 max-w-xl mx-auto font-normal leading-relaxed">
-          One Docker Compose stack for Livo, PostgreSQL, Redis, Elasticsearch, and S3-compatible storage.
+          One Docker Compose stack for Nimbus, PostgreSQL, Redis, Elasticsearch, and S3-compatible storage.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-1">
           <Link
             href="/app"
             id="final-cta-get-started-btn"
@@ -41,7 +41,7 @@ export function FinalCTA({ onGetStarted }: FinalCTAProps) {
           </Link>
 
           <a
-            href="https://github.com/dheeraj080/Livo"
+            href="https://github.com"
             target="_blank"
             rel="noopener noreferrer"
             id="final-cta-github-btn"
@@ -52,7 +52,7 @@ export function FinalCTA({ onGetStarted }: FinalCTAProps) {
           </a>
         </div>
 
-        <div className="pt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-xs sm:text-[13px] text-zinc-400 font-mono">
+        <div className="pt-2 sm:pt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto text-xs sm:text-[13px] text-zinc-400 font-mono">
           <div className="flex items-center justify-center gap-1.5 p-3 rounded-full bg-[#121214] border border-zinc-800">
             <Shield className="w-3.5 h-3.5 text-zinc-300" />
             <span>Data Control</span>
