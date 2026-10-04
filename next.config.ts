@@ -19,12 +19,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'standalone',
+  // Disabled to prevent EPERM symlink errors on Windows during local builds.
+  // Re-enable (or set via env var) when building inside a Docker container or production CI.
+  output: process.env.BUILD_STANDALONE === 'true' ? 'standalone' : undefined,
   serverExternalPackages: ['bullmq', '@elastic/elasticsearch', 'pg', 'ioredis'],
   transpilePackages: ['motion'],
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
-    // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
     if (dev && process.env.DISABLE_HMR === 'true') {
       config.watchOptions = {
         ignored: /.*/,
