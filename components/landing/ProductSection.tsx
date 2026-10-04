@@ -136,7 +136,7 @@ export function ProductSection() {
                   Attach PDFs, whitepapers, & diagrams. All fully OCR-indexed.
                 </h3>
                 <p className="text-[15px] sm:text-base text-zinc-400 leading-relaxed">
-                  Drag and drop technical papers, system diagrams, and research notes. Nimbus automatically runs optical character recognition on images and builds full-text search tokens across every page.
+                  Drag and drop technical papers, system diagrams, and research notes. livo automatically runs optical character recognition on images and builds full-text search tokens across every page.
                 </p>
 
                 <div className="space-y-3 pt-2 font-mono text-xs sm:text-[13px] text-zinc-300">

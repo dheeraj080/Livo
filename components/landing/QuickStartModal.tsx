@@ -31,7 +31,7 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
   const steps = [
     {
       title: '1. Clone the repository',
-      command: 'git clone https://github.com/nimbus-notes/nimbus.git && cd nimbus',
+      command: 'git clone https://github.com/livo-notes/livo.git && cd livo',
       desc: 'Get the official Docker Compose configuration and default environment files.',
     },
     {
@@ -42,7 +42,7 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
     {
       title: '3. Launch with Docker Compose',
       command: 'docker compose up -d',
-      desc: 'Spins up Nimbus, PostgreSQL, Redis, Elasticsearch, and MinIO in the background.',
+      desc: 'Spins up livo, PostgreSQL, Redis, Elasticsearch, and MinIO in the background.',
     },
     {
       title: '4. Open web interface',
@@ -71,7 +71,7 @@ export function QuickStartModal({ isOpen, onClose }: QuickStartModalProps) {
               </span>
               <span className="text-xs text-zinc-400 font-mono">MIT License</span>
             </div>
-            <h3 className="text-xl font-bold text-white mt-1">Deploy Nimbus with Docker</h3>
+            <h3 className="text-xl font-bold text-white mt-1">Deploy livo with Docker</h3>
           </div>
           <button
             id="close-quickstart-modal-btn"

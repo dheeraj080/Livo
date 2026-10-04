@@ -1,0 +1,8 @@
+allowBuilds:
+  '@google/genai': false
+  '@tailwindcss/oxide': false
+  esbuild: false
+  msgpackr-extract: false
+  protobufjs: false
+  re2: false
+  unrs-resolver: false

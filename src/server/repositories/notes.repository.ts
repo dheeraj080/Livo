@@ -1,5 +1,5 @@
-import { eq, and, desc, sql, isNull, isNotNull, inArray } from "drizzle-orm";
-import { getDatabase } from "../services/db";
+import { eq, and, desc, sql, isNull, isNotNull, inArray } from 'drizzle-orm';
+import { getDatabase } from '../services/db';
 import {
   notes,
   noteTags,
@@ -11,9 +11,9 @@ import {
   type TagRow,
   type AttachmentRow,
   type NoteVersionRow,
-} from "../services/db/schema";
-import { tagsRepository } from "./tags.repository";
-import { notebooksRepository } from "./notebooks.repository";
+} from '../services/db/schema';
+import { tagsRepository } from './tags.repository';
+import { notebooksRepository } from './notebooks.repository';
 
 export interface NoteDetail extends NoteRow {
   tags: TagRow[];
@@ -48,77 +48,62 @@ export interface ListNotesOptions {
 // In-memory notes fallback store when PostgreSQL is unconfigured or unavailable
 const inMemoryNotes = new Map<string, NoteDetail>([
   [
-    "note-welcome-01",
+    'note-welcome-01',
     {
-      id: "note-welcome-01",
-      userId: "00000000-0000-0000-0000-000000000001",
-      notebookId: "nb-primary",
-      notebookName: "Personal Brain",
-      title: "Welcome to livo Knowledge Base",
+      id: 'note-welcome-01',
+      userId: '00000000-0000-0000-0000-000000000001',
+      notebookId: 'nb-primary',
+      notebookName: 'Personal Brain',
+      title: 'Welcome to livo Knowledge Base',
       contentJson: {
-        type: "doc",
+        type: 'doc',
         content: [
           {
-            type: "heading",
+            type: 'heading',
             attrs: { level: 1 },
-            content: [{ type: "text", text: "Welcome to livo" }],
+            content: [{ type: 'text', text: 'Welcome to livo' }],
           },
           {
-            type: "paragraph",
+            type: 'paragraph',
             content: [
               {
-                type: "text",
-                text: "livo is your personal AI-powered knowledge management engine inspired by Evernote and Notion.",
+                type: 'text',
+                text: 'livo is your personal AI-powered knowledge management engine inspired by Evernote and Notion.',
               },
             ],
           },
           {
-            type: "heading",
+            type: 'heading',
             attrs: { level: 2 },
-            content: [{ type: "text", text: "What's under the hood" }],
+            content: [{ type: 'text', text: "What's under the hood" }],
           },
           {
-            type: "bulletList",
+            type: 'bulletList',
             content: [
               {
-                type: "listItem",
+                type: 'listItem',
                 content: [
                   {
-                    type: "paragraph",
-                    content: [
-                      {
-                        type: "text",
-                        text: "PostgreSQL + Drizzle ORM: Relational storage",
-                      },
-                    ],
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'PostgreSQL + Drizzle ORM: Relational storage' }],
                   },
                 ],
               },
               {
-                type: "listItem",
+                type: 'listItem',
                 content: [
                   {
-                    type: "paragraph",
-                    content: [
-                      {
-                        type: "text",
-                        text: "Elasticsearch: Full-text BM25 indexation",
-                      },
-                    ],
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'Elasticsearch: Full-text BM25 indexation' }],
                   },
                 ],
               },
               {
-                type: "listItem",
+                type: 'listItem',
                 content: [
                   {
-                    type: "paragraph",
-                    content: [
-                      {
-                        type: "text",
-                        text: "Google Gemini AI: Server-side summarization",
-                      },
-                    ],
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'Google Gemini AI: Server-side summarization' }],
                   },
                 ],
               },
@@ -127,16 +112,16 @@ const inMemoryNotes = new Map<string, NoteDetail>([
         ],
       },
       contentText:
-        "Welcome to livo. livo is your personal AI-powered knowledge management engine inspired by Evernote and Notion.",
+        'Welcome to livo. livo is your personal AI-powered knowledge management engine inspired by Evernote and Notion.',
       deletedAt: null,
-      createdAt: new Date("2026-01-01T00:00:00.000Z"),
-      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       tags: [
         {
-          id: "tag-1",
-          userId: "00000000-0000-0000-0000-000000000001",
-          name: "GettingStarted",
-          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+          id: 'tag-1',
+          userId: '00000000-0000-0000-0000-000000000001',
+          name: 'GettingStarted',
+          createdAt: new Date('2026-01-01T00:00:00.000Z'),
         },
       ],
       attachments: [],
@@ -150,31 +135,27 @@ export class NotesRepository {
   /**
    * Helper to ensure content_json is always a valid structured Tiptap JSON object.
    */
-  private normalizeContentJson(
-    contentJson?: any,
-    fallbackText?: string,
-  ): Record<string, any> {
-    if (contentJson && typeof contentJson === "object") {
+  private normalizeContentJson(contentJson?: any, fallbackText?: string): Record<string, any> {
+    if (contentJson && typeof contentJson === 'object') {
       return contentJson;
     }
-    if (typeof contentJson === "string") {
+    if (typeof contentJson === 'string') {
       try {
         const parsed = JSON.parse(contentJson);
-        if (parsed && typeof parsed === "object") return parsed;
+        if (parsed && typeof parsed === 'object') return parsed;
       } catch {
         // Fall through
       }
     }
 
-    const text =
-      fallbackText || (typeof contentJson === "string" ? contentJson : "");
+    const text = fallbackText || (typeof contentJson === 'string' ? contentJson : '');
     return {
-      type: "doc",
+      type: 'doc',
       content: text
         ? [
             {
-              type: "paragraph",
-              content: [{ type: "text", text }],
+              type: 'paragraph',
+              content: [{ type: 'text', text }],
             },
           ]
         : [],
@@ -194,28 +175,20 @@ export class NotesRepository {
     if (input.notebookId) {
       const nb = await notebooksRepository.findById(userId, input.notebookId);
       if (!nb) {
-        throw new Error("Notebook not found or does not belong to user");
+        throw new Error('Notebook not found or does not belong to user');
       }
       notebookName = nb.name;
     }
 
-    const contentJson = this.normalizeContentJson(
-      input.contentJson,
-      input.contentText,
-    );
-    const contentText =
-      input.contentText !== undefined ? input.contentText : "";
-    const title = (input.title || "Untitled Note").trim();
+    const contentJson = this.normalizeContentJson(input.contentJson, input.contentText);
+    const contentText = input.contentText !== undefined ? input.contentText : '';
+    const title = (input.title || 'Untitled Note').trim();
 
     if (!db) {
       const noteId = `note-${crypto.randomUUID().slice(0, 8)}`;
       let attachedTags: TagRow[] = [];
       if (input.tagIds && input.tagIds.length > 0) {
-        attachedTags = await tagsRepository.setTagsForNote(
-          userId,
-          noteId,
-          input.tagIds,
-        );
+        attachedTags = await tagsRepository.setTagsForNote(userId, noteId, input.tagIds);
       }
 
       const noteDetail: NoteDetail = {
@@ -267,11 +240,7 @@ export class NotesRepository {
       // Attach initial tags if provided
       let attachedTags: TagRow[] = [];
       if (input.tagIds && input.tagIds.length > 0) {
-        attachedTags = await tagsRepository.setTagsForNote(
-          userId,
-          createdNote.id,
-          input.tagIds,
-        );
+        attachedTags = await tagsRepository.setTagsForNote(userId, createdNote.id, input.tagIds);
       }
 
       const result: NoteDetail = {
@@ -287,11 +256,7 @@ export class NotesRepository {
       const noteId = `note-${crypto.randomUUID().slice(0, 8)}`;
       let attachedTags: TagRow[] = [];
       if (input.tagIds && input.tagIds.length > 0) {
-        attachedTags = await tagsRepository.setTagsForNote(
-          userId,
-          noteId,
-          input.tagIds,
-        );
+        attachedTags = await tagsRepository.setTagsForNote(userId, noteId, input.tagIds);
       }
 
       const noteDetail: NoteDetail = {
@@ -321,7 +286,7 @@ export class NotesRepository {
   async findById(
     userId: string,
     id: string,
-    options?: { includeDeleted?: boolean },
+    options?: { includeDeleted?: boolean }
   ): Promise<NoteDetail | null> {
     const db = getDatabase();
     if (!db) {
@@ -371,9 +336,7 @@ export class NotesRepository {
       const attachmentsList = await db
         .select()
         .from(attachments)
-        .where(
-          and(eq(attachments.noteId, note.id), eq(attachments.userId, userId)),
-        );
+        .where(and(eq(attachments.noteId, note.id), eq(attachments.userId, userId)));
 
       return {
         ...note,
@@ -396,11 +359,7 @@ export class NotesRepository {
    * Verifies user_id ownership, updates content_json, content_text, title, etc.,
    * and creates a version snapshot when content changes.
    */
-  async update(
-    userId: string,
-    id: string,
-    input: UpdateNoteInput,
-  ): Promise<NoteDetail | null> {
+  async update(userId: string, id: string, input: UpdateNoteInput): Promise<NoteDetail | null> {
     const existing = await this.findById(userId, id, { includeDeleted: true });
     if (!existing) {
       return null;
@@ -410,7 +369,7 @@ export class NotesRepository {
     if (input.notebookId !== undefined && input.notebookId !== null) {
       const nb = await notebooksRepository.findById(userId, input.notebookId);
       if (!nb) {
-        throw new Error("Target notebook not found or does not belong to user");
+        throw new Error('Target notebook not found or does not belong to user');
       }
     }
 
@@ -419,10 +378,7 @@ export class NotesRepository {
     let newContentText = existing.contentText;
 
     if (input.contentJson !== undefined) {
-      newContentJson = this.normalizeContentJson(
-        input.contentJson,
-        input.contentText,
-      );
+      newContentJson = this.normalizeContentJson(input.contentJson, input.contentText);
       shouldCreateVersion = true;
     }
 
@@ -435,20 +391,13 @@ export class NotesRepository {
     if (!db) {
       let updatedTags = existing.tags;
       if (input.tagIds !== undefined) {
-        updatedTags = await tagsRepository.setTagsForNote(
-          userId,
-          id,
-          input.tagIds,
-        );
+        updatedTags = await tagsRepository.setTagsForNote(userId, id, input.tagIds);
       }
 
       const updated: NoteDetail = {
         ...existing,
         title: input.title !== undefined ? input.title.trim() : existing.title,
-        notebookId:
-          input.notebookId !== undefined
-            ? input.notebookId
-            : existing.notebookId,
+        notebookId: input.notebookId !== undefined ? input.notebookId : existing.notebookId,
         contentJson: newContentJson,
         contentText: newContentText,
         tags: updatedTags,
@@ -505,11 +454,7 @@ export class NotesRepository {
 
       let updatedTags = existing.tags;
       if (input.tagIds !== undefined) {
-        updatedTags = await tagsRepository.setTagsForNote(
-          userId,
-          id,
-          input.tagIds,
-        );
+        updatedTags = await tagsRepository.setTagsForNote(userId, id, input.tagIds);
       }
 
       const result: NoteDetail = {
@@ -523,20 +468,13 @@ export class NotesRepository {
     } catch {
       let updatedTags = existing.tags;
       if (input.tagIds !== undefined) {
-        updatedTags = await tagsRepository.setTagsForNote(
-          userId,
-          id,
-          input.tagIds,
-        );
+        updatedTags = await tagsRepository.setTagsForNote(userId, id, input.tagIds);
       }
 
       const updated: NoteDetail = {
         ...existing,
         title: input.title !== undefined ? input.title.trim() : existing.title,
-        notebookId:
-          input.notebookId !== undefined
-            ? input.notebookId
-            : existing.notebookId,
+        notebookId: input.notebookId !== undefined ? input.notebookId : existing.notebookId,
         contentJson: newContentJson,
         contentText: newContentText,
         tags: updatedTags,
@@ -571,13 +509,7 @@ export class NotesRepository {
           deletedAt: new Date(),
           updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(notes.id, id),
-            eq(notes.userId, userId),
-            isNull(notes.deletedAt),
-          ),
-        )
+        .where(and(eq(notes.id, id), eq(notes.userId, userId), isNull(notes.deletedAt)))
         .returning({ id: notes.id });
 
       const note = inMemoryNotes.get(id);
@@ -619,13 +551,7 @@ export class NotesRepository {
           deletedAt: null,
           updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(notes.id, id),
-            eq(notes.userId, userId),
-            isNotNull(notes.deletedAt),
-          ),
-        )
+        .where(and(eq(notes.id, id), eq(notes.userId, userId), isNotNull(notes.deletedAt)))
         .returning({ id: notes.id });
 
       const note = inMemoryNotes.get(id);
@@ -720,20 +646,15 @@ export class NotesRepository {
    * Strictly scopes by userId.
    * Default excludes soft-deleted notes unless isTrashed: true.
    */
-  async listByUser(
-    userId: string,
-    options?: ListNotesOptions,
-  ): Promise<NoteDetail[]> {
+  async listByUser(userId: string, options?: ListNotesOptions): Promise<NoteDetail[]> {
     const db = getDatabase();
     if (!db) {
       return Array.from(inMemoryNotes.values())
         .filter((n) => {
           if (n.userId !== userId) return false;
           if (options?.isTrashed ? !n.deletedAt : n.deletedAt) return false;
-          if (options?.notebookId && n.notebookId !== options.notebookId)
-            return false;
-          if (options?.tagId && !n.tags.some((t) => t.id === options.tagId))
-            return false;
+          if (options?.notebookId && n.notebookId !== options.notebookId) return false;
+          if (options?.tagId && !n.tags.some((t) => t.id === options.tagId)) return false;
           return true;
         })
         .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -800,10 +721,8 @@ export class NotesRepository {
           .filter((n) => {
             if (n.userId !== userId) return false;
             if (options?.isTrashed ? !n.deletedAt : n.deletedAt) return false;
-            if (options?.notebookId && n.notebookId !== options.notebookId)
-              return false;
-            if (options?.tagId && !n.tags.some((t) => t.id === options.tagId))
-              return false;
+            if (options?.notebookId && n.notebookId !== options.notebookId) return false;
+            if (options?.tagId && !n.tags.some((t) => t.id === options.tagId)) return false;
             return true;
           })
           .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -847,10 +766,8 @@ export class NotesRepository {
         .filter((n) => {
           if (n.userId !== userId) return false;
           if (options?.isTrashed ? !n.deletedAt : n.deletedAt) return false;
-          if (options?.notebookId && n.notebookId !== options.notebookId)
-            return false;
-          if (options?.tagId && !n.tags.some((t) => t.id === options.tagId))
-            return false;
+          if (options?.notebookId && n.notebookId !== options.notebookId) return false;
+          if (options?.tagId && !n.tags.some((t) => t.id === options.tagId)) return false;
           return true;
         })
         .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -863,7 +780,7 @@ export class NotesRepository {
   async createVersion(
     noteId: string,
     contentJson: Record<string, any>,
-    contentText: string,
+    contentText: string
   ): Promise<NoteVersionRow> {
     const db = getDatabase();
     if (!db) {
@@ -905,10 +822,7 @@ export class NotesRepository {
   /**
    * List immutable version snapshots for a note.
    */
-  async listVersions(
-    userId: string,
-    noteId: string,
-  ): Promise<NoteVersionRow[]> {
+  async listVersions(userId: string, noteId: string): Promise<NoteVersionRow[]> {
     const db = getDatabase();
     if (!db) {
       return inMemoryVersions
@@ -918,9 +832,7 @@ export class NotesRepository {
 
     try {
       // Verify note ownership
-      const note = await this.findById(userId, noteId, {
-        includeDeleted: true,
-      });
+      const note = await this.findById(userId, noteId, { includeDeleted: true });
       if (!note) return [];
 
       const rows = await db

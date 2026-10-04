@@ -1,6 +1,10 @@
 import Workspace from '@/components/workspace/Workspace';
 
-export default async function NotePage({ params }: { params: Promise<{ id: string }> }) {
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function NotePage({ params }: PageProps) {
   const { id } = await params;
   return <Workspace initialNoteId={id} />;
 }

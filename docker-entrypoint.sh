@@ -3,7 +3,7 @@ set -e
 
 # Run idempotent database migration and search index verification
 if [ -f "scripts/init-infrastructure.mjs" ]; then
-  node scripts/init-infrastructure.mjs || echo "[Livo Entrypoint] Pre-start init completed with warnings, starting server..."
+  node scripts/init-infrastructure.mjs || echo "[livo Entrypoint] Pre-start init completed with warnings, starting server..."
 fi
 
 # Execute the primary CMD (e.g. node server.js)

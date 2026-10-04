@@ -44,12 +44,12 @@ export function Navbar({ onGetStarted }: NavbarProps) {
             href="#"
             id="navbar-brand-link"
             className="flex items-center gap-2.5 group transition-opacity shrink-0"
-            aria-label="Nimbus Home"
+            aria-label="livo Home"
           >
             <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center shadow-sm">
               <div className="w-3 h-3 bg-black rounded-full" />
             </div>
-            <span className="text-[17px] font-bold tracking-tight text-white">Nimbus</span>
+            <span className="text-[17px] font-bold tracking-tight text-white">livo</span>
           </a>
 
           {/* Desktop Navigation Links */}

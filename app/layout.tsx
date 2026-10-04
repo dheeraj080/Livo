@@ -2,17 +2,17 @@ import type {Metadata} from 'next';
 import './globals.css'; // Global styles
 
 export const metadata: Metadata = {
-  title: 'Livo — Self-Hosted AI Knowledge Platform',
-  description: 'A self-hosted AI knowledge platform for people who want their knowledge, AI, and infrastructure under their control.',
+  title: 'livo - AI-Powered Personal Knowledge Management',
+  description: 'AI-powered personal knowledge management application inspired by Evernote and Notion.',
   openGraph: {
-    title: 'Livo — Self-Hosted AI Knowledge Platform',
-    description: 'A self-hosted AI knowledge platform for people who want their knowledge, AI, and infrastructure under their control.',
+    title: 'livo - AI-Powered Personal Knowledge Management',
+    description: 'AI-powered personal knowledge management application inspired by Evernote and Notion.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Livo — Self-Hosted AI Knowledge Platform',
-    description: 'A self-hosted AI knowledge platform for people who want their knowledge, AI, and infrastructure under their control.',
+    title: 'livo - AI-Powered Personal Knowledge Management',
+    description: 'AI-powered personal knowledge management application inspired by Evernote and Notion.',
   },
 };
 

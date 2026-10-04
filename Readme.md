@@ -1,19 +1,19 @@
-# Livo — AI-Powered Personal Knowledge Management
+# livo — AI-Powered Personal Knowledge Management
 
-Livo is a modern, modular-monolith personal knowledge management application inspired by Evernote and Notion. It combines rich-text document editing, nested notebook hierarchies, full-text and semantic vector search, file attachment processing, and AI-assisted workflows into a single coherent system.
+livo is a modern, modular-monolith personal knowledge management application inspired by Evernote and Notion. It combines rich-text document editing, nested notebook hierarchies, full-text and semantic vector search, file attachment processing, and AI-assisted workflows into a single coherent system.
 
 ---
 
 ## Architecture Overview
 
-Livo runs as a cohesive Next.js modular monolith with dedicated, containerized backing services:
+livo runs as a cohesive Next.js modular monolith with dedicated, containerized backing services:
 
 ```text
                              Browser
                                 |
                                 v
                         +---------------+
-                        |    Livo     |
+                        |    livo     |
                         |   Next.js     |
                         |   UI + API    |
                         +-------+-------+
@@ -38,7 +38,7 @@ Livo runs as a cohesive Next.js modular monolith with dedicated, containerized b
                         +---------------+
 ```
 
-- **Livo (Next.js 15 Standalone)**: Serves the full-featured web UI and API routes. Background workers for note indexing and attachment processing run within the process via BullMQ.
+- **livo (Next.js 15 Standalone)**: Serves the full-featured web UI and API routes. Background workers for note indexing and attachment processing run within the process via BullMQ.
 - **PostgreSQL 16**: Authoritative persistent relational database for users, notebooks, notes, note versions, tags, and attachment metadata.
 - **Redis 7**: High-performance broker for BullMQ background queues with Append-Only File (AOF) persistence.
 - **Elasticsearch 8.17**: Search projection storing note content and 768-dimensional dense vector embeddings for hybrid keyword and semantic retrieval.
@@ -63,7 +63,7 @@ No Node.js or database installation is required on the host system when using Do
 
    ```bash
    git clone <repository-url>
-   cd Livo
+   cd livo
    ```
 
 2. **Configure environment variables:**
@@ -92,7 +92,7 @@ No Node.js or database installation is required on the host system when using Do
    docker compose ps
    ```
 
-5. **Access Livo:**
+5. **Access livo:**
    Open your browser and navigate to:
    ```text
    http://localhost:3000
@@ -105,19 +105,19 @@ No Node.js or database installation is required on the host system when using Do
 When `docker compose up -d` is executed:
 
 1. **Backing Services Launch**: PostgreSQL, Redis, Elasticsearch, and MinIO start with persistent storage volumes.
-2. **MinIO Bucket Auto-Provisioning**: The `minio-create-bucket` helper initializes the `Livo-attachments` bucket idempotently.
+2. **MinIO Bucket Auto-Provisioning**: The `minio-create-bucket` helper initializes the `livo-attachments` bucket idempotently.
 3. **Database & Index Initialization**: The `docker-entrypoint.sh` runs `scripts/init-infrastructure.mjs`, which automatically applies all PostgreSQL migrations (`CREATE TABLE IF NOT EXISTS`) and sets up Elasticsearch mappings for notes and chunk vector indices.
-4. **Livo Service Starts**: Once health checks pass, the standalone Next.js server accepts requests on port 3000.
+4. **livo Service Starts**: Once health checks pass, the standalone Next.js server accepts requests on port 3000.
 
 ---
 
 ## Service Ports & Security
 
-To maintain a secure posture, internal backing services are isolated within a private Docker network (`Livo_network`):
+To maintain a secure posture, internal backing services are isolated within a private Docker network (`livo_network`):
 
 | Service           | Container Port | Host Port       | Purpose                              |
 | ----------------- | -------------- | --------------- | ------------------------------------ |
-| **Livo**          | `3000`         | `3000` (Public) | Web Application & API                |
+| **livo**          | `3000`         | `3000` (Public) | Web Application & API                |
 | **MinIO Console** | `9001`         | `9001` (Admin)  | MinIO Web Dashboard (Optional)       |
 | **PostgreSQL**    | `5432`         | None            | Internal database traffic only       |
 | **Redis**         | `6379`         | None            | Internal queue traffic only          |
@@ -162,10 +162,10 @@ To maintain a secure posture, internal backing services are isolated within a pr
   docker compose logs -f
   ```
 
-- **View Livo application logs:**
+- **View livo application logs:**
 
   ```bash
-  docker compose logs -f Livo
+  docker compose logs -f livo
   ```
 
 - **Check container health:**
@@ -185,10 +185,10 @@ To maintain a secure posture, internal backing services are isolated within a pr
 
 Application state is preserved across container restarts and updates using named Docker volumes:
 
-- `Livo_postgres_data`: All relational tables, user data, notebooks, note versions, and metadata.
-- `Livo_redis_data`: BullMQ queue state and background job scheduling.
-- `Livo_elasticsearch_data`: Inverted full-text indices and vector embeddings.
-- `Livo_minio_data`: Binary file attachments and documents.
+- `livo_postgres_data`: All relational tables, user data, notebooks, note versions, and metadata.
+- `livo_redis_data`: BullMQ queue state and background job scheduling.
+- `livo_elasticsearch_data`: Inverted full-text indices and vector embeddings.
+- `livo_minio_data`: Binary file attachments and documents.
 
 > **CRITICAL WARNING ON DATA RETENTION:**
 > Running `docker compose down` will stop and remove containers **WITHOUT** deleting your persistent volumes.
@@ -208,13 +208,13 @@ Application state is preserved across container restarts and updates using named
 ### PostgreSQL Backup
 
 ```bash
-docker exec -t Livo_postgres pg_dump -U Livo Livo > Livo_backup_$(date +%Y%m%d).sql
+docker exec -t livo_postgres pg_dump -U livo livo > livo_backup_$(date +%Y%m%d).sql
 ```
 
 ### PostgreSQL Restore
 
 ```bash
-cat Livo_backup.sql | docker exec -i Livo_postgres psql -U Livo -d Livo
+cat livo_backup.sql | docker exec -i livo_postgres psql -U livo -d livo
 ```
 
 ### MinIO Attachments Backup
@@ -222,13 +222,13 @@ cat Livo_backup.sql | docker exec -i Livo_postgres psql -U Livo -d Livo
 Backup the MinIO data volume or copy files directly using the MinIO client:
 
 ```bash
-docker run --rm --network Livo_network -v $(pwd)/backup:/backup minio/mc \
-  mirror http://minio:9000/Livo-attachments /backup
+docker run --rm --network livo_network -v $(pwd)/backup:/backup minio/mc \
+  mirror http://minio:9000/livo-attachments /backup
 ```
 
 ---
 
-## Updating Livo
+## Updating livo
 
 To pull the latest code and update your self-hosted deployment:
 
@@ -239,6 +239,53 @@ docker compose up -d
 ```
 
 Database migrations and index mapping checks will automatically execute during container startup without deleting any existing data.
+
+---
+
+## Troubleshooting & Diagnostics
+
+### Container Startup Issues
+
+- **Check status of all containers:**
+
+  ```bash
+  docker compose ps -a
+  ```
+
+- **Inspect live logs of a specific failing service:**
+  ```bash
+  docker compose logs -f postgres
+  docker compose logs -f elasticsearch
+  docker compose logs -f livo
+  ```
+
+### Elasticsearch Memory Considerations
+
+Elasticsearch requires sufficient virtual memory on Linux hosts. If the Elasticsearch container exits with code 137 or reports `max virtual memory areas vm.max_map_count [65530] is too low`:
+
+```bash
+sudo sysctl -w vm.max_map_count=262144
+```
+
+To persist this setting across host reboots, add to `/etc/sysctl.conf`:
+
+```text
+vm.max_map_count=262144
+```
+
+### Database Connection Retries
+
+livo's startup entrypoint incorporates a 15-attempt (30-second) exponential readiness check to accommodate PostgreSQL initialization on slower hosts or SSDs. If PostgreSQL takes longer to become ready, livo retries automatically on initial web request.
+
+### Verifying Service Connectivity
+
+Query the built-in system diagnostics endpoint:
+
+```bash
+curl -i http://localhost:3000/api/health
+```
+
+A status of `200 OK` with `"status": "healthy"` indicates all relational, queue, search, and storage backing services are connected and operational.
 
 ---
 

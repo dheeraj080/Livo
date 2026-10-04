@@ -50,6 +50,8 @@ import {
 } from 'lucide-react';
 import type { Attachment } from '@/src/types';
 import { FloatingFormatToolbar } from './FloatingFormatToolbar';
+import { SlashCommandMenu } from './SlashCommandMenu';
+import { Callout } from './extensions/Callout';
 
 export interface TiptapEditorProps {
   noteId?: string;
@@ -92,6 +94,7 @@ export function TiptapEditor({
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const generalFileInputRef = React.useRef<HTMLInputElement | null>(null);
   const overflowRef = React.useRef<HTMLDivElement | null>(null);
+  const slashKeyDownHandlerRef = React.useRef<((event: KeyboardEvent) => boolean) | null>(null);
 
   const uploadAndInsertImageRef = React.useRef<
     (file: File, targetPos?: number) => Promise<void>
@@ -147,8 +150,15 @@ export function TiptapEditor({
       Placeholder.configure({
         placeholder,
       }),
+      Callout,
     ],
     editorProps: {
+      handleKeyDown: (view, event) => {
+        if (slashKeyDownHandlerRef.current && slashKeyDownHandlerRef.current(event)) {
+          return true;
+        }
+        return false;
+      },
       handleDrop: (view, event, slice, moved) => {
         if (!moved && event.dataTransfer?.files?.length) {
           const files = Array.from(event.dataTransfer.files);
@@ -880,6 +890,33 @@ export function TiptapEditor({
                     <span>Divider line</span>
                   </button>
 
+                  {/* Callout box */}
+                  <button
+                    id="editor-overflow-callout"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      editor
+                        .chain()
+                        .focus()
+                        .insertContent({
+                          type: 'callout',
+                          content: [
+                            {
+                              type: 'paragraph',
+                              content: [{ type: 'text', text: 'Important note...' }],
+                            },
+                          ],
+                        })
+                        .run();
+                      setOverflowOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-stone-100 transition-colors text-left cursor-pointer"
+                  >
+                    <span className="text-xs">💡</span>
+                    <span>Callout box</span>
+                  </button>
+
                   <div className="h-[1px] bg-stone-100 my-1" />
 
                   {/* Clear formatting */}
@@ -944,6 +981,22 @@ export function TiptapEditor({
         />
         {/* Floating formatting toolbar appearing on text selection */}
         <FloatingFormatToolbar editor={editor} noteTitle={noteTitle} />
+
+        {/* Slash commands menu appearing near cursor when user types "/" */}
+        <SlashCommandMenu
+          editor={editor}
+          onOpenAI={onOpenAI}
+          onOpenImage={() => {
+            setImageTab('upload');
+            setImageModalOpen(true);
+          }}
+          onOpenFile={() => {
+            generalFileInputRef.current?.click();
+          }}
+          registerKeyDownHandler={(handler) => {
+            slashKeyDownHandlerRef.current = handler;
+          }}
+        />
       </div>
 
       {/* Footer Metrics */}

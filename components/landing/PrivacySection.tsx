@@ -20,7 +20,7 @@ export function PrivacySection() {
             AI without giving up ownership.
           </h2>
           <p className="mt-3 sm:mt-3.5 text-base sm:text-lg text-zinc-400">
-            You don&apos;t have to sacrifice modern AI intelligence to keep your data private. Nimbus gives you architectural choice over where and how your prompts are processed.
+            You don&apos;t have to sacrifice modern AI intelligence to keep your data private. livo gives you architectural choice over where and how your prompts are processed.
           </p>
         </ScrollReveal>
 
@@ -101,7 +101,7 @@ export function PrivacySection() {
             <div className="space-y-2.5 text-xs text-zinc-300 border-t border-zinc-800/80 pt-4">
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <span>Direct client-to-API communication with zero Nimbus intermediary proxy servers.</span>
+                <span>Direct client-to-API communication with zero livo intermediary proxy servers.</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />

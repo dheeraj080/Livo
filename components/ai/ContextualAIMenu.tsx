@@ -176,7 +176,7 @@ export function ContextualAIMenu({
       id="contextual-ai-popover"
       role="dialog"
       aria-label="Contextual AI Menu"
-      className="absolute top-full right-0 mt-2 z-40 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden animate-in fade-in zoom-in-95"
+      className="absolute top-full left-0 mt-2 z-40 w-80 sm:w-96 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden animate-in fade-in zoom-in-95"
     >
       {/* Popover Header */}
       <div className="px-4 py-3 bg-stone-50 border-b border-stone-200 flex items-center justify-between">

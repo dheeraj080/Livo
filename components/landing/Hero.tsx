@@ -107,7 +107,7 @@ export function Hero({ onGetStarted }: HeroProps) {
                 Docker Compose
               </span>
               <span className="text-zinc-600">&rarr;</span>
-              <span className="text-zinc-300 font-semibold">Nimbus</span>
+              <span className="text-zinc-300 font-semibold">livo</span>
               <span className="text-zinc-600">&middot;</span>
               <span>PostgreSQL</span>
               <span className="text-zinc-600">&middot;</span>

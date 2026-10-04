@@ -79,7 +79,7 @@ export function HeroAppMockup() {
             <div className="w-3 h-3 rounded-full bg-green-500/80" />
           </div>
           <span className="ml-3 text-xs font-mono text-zinc-400 font-medium hidden sm:inline-block">
-            nimbus-desktop — personal-vault (v0.9.4)
+            livo-desktop — personal-vault (v0.9.4)
           </span>
         </div>
 

@@ -9,7 +9,7 @@ export function DocsPreviewSection() {
   const [copied, setCopied] = useState(false);
 
   const envSample = `# Core Database & Services
-DATABASE_URL=postgres://nimbus:password@postgres:5432/nimbus_db
+DATABASE_URL=postgres://livo:password@postgres:5432/livo_db
 ELASTICSEARCH_URL=http://elasticsearch:9200
 MINIO_ENDPOINT=minio:9000
 REDIS_URL=redis://redis:6379
@@ -29,7 +29,7 @@ JWT_SECRET=production_random_token_string`;
 
   const apiSample = `// POST /api/v1/search/hybrid
 curl -X POST http://localhost:3000/api/v1/search/hybrid \\
-  -H "Authorization: Bearer $NIMBUS_TOKEN" \\
+  -H "Authorization: Bearer $livo_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
     "query": "what did I write about scaling databases?",
@@ -98,7 +98,7 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
                     ? envSample
                     : activeTab === 'api'
                     ? apiSample
-                    : 'git clone https://github.com/nimbus-notes/nimbus.git && cd nimbus && docker compose up -d';
+                    : 'git clone https://github.com/livo-notes/livo.git && cd livo && docker compose up -d';
                 navigator.clipboard.writeText(text);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
@@ -123,12 +123,12 @@ curl -X POST http://localhost:3000/api/v1/search/hybrid \\
             {activeTab === 'quickstart' && (
               <div className="space-y-4">
                 <p className="text-sm sm:text-base text-zinc-300 leading-relaxed max-w-2xl">
-                  Deploy the full Nimbus sovereign stack on your local machine, homelab, or cloud VPS with a single command:
+                  Deploy the full livo sovereign stack on your local machine, homelab, or cloud VPS with a single command:
                 </p>
                 <div className="bg-[#18181b] rounded-xl border border-zinc-800 p-4 font-mono text-xs sm:text-[13px] text-zinc-200 overflow-x-auto leading-relaxed">
                   <span className="text-zinc-500"># 1. Clone repository</span>{'\n'}
-                  git clone https://github.com/nimbus-notes/nimbus.git{'\n'}
-                  cd nimbus{'\n\n'}
+                  git clone https://github.com/livo-notes/livo.git{'\n'}
+                  cd livo{'\n\n'}
                   <span className="text-zinc-500"># 2. Launch production stack in background</span>{'\n'}
                   docker compose up -d{'\n\n'}
                   <span className="text-zinc-500"># 3. Open browser</span>{'\n'}

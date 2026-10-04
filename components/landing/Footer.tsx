@@ -19,7 +19,7 @@ export function Footer({ onOpenQuickStart, onGetStarted }: FooterProps) {
               <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-black font-bold">
                 <Cloud className="w-4 h-4" />
               </div>
-              <span className="font-bold text-base text-white tracking-tight">Nimbus</span>
+              <span className="font-bold text-base text-white tracking-tight">livo</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#18181b] text-zinc-400 border border-zinc-800">
                 Docker Stack
               </span>
@@ -33,7 +33,7 @@ export function Footer({ onOpenQuickStart, onGetStarted }: FooterProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2.5 rounded-full bg-[#121214] border border-zinc-800 text-zinc-300 hover:text-white hover:bg-[#18181b] transition-colors"
-                aria-label="Nimbus GitHub repository"
+                aria-label="livo GitHub repository"
               >
                 <Github className="w-4 h-4" />
               </a>
@@ -155,7 +155,7 @@ export function Footer({ onOpenQuickStart, onGetStarted }: FooterProps) {
         {/* Bottom Bar */}
         <div className="pt-5 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-400 font-mono text-[11px]">
           <div>
-            &copy; {new Date().getFullYear()} Nimbus Knowledge Engine. Open-source under MIT License.
+            &copy; {new Date().getFullYear()} livo Knowledge Engine. Open-source under MIT License.
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">

@@ -1,39 +1,190 @@
 @import "tailwindcss";
-@import "../packages/ui/tokens.css";
+@import "tw-animate-css";
 
+/* Base global styles for Tailwind v4 */
 @layer base {
-  html {
-    scroll-behavior: smooth;
+  :root {
+    --background: #000000;
+    --foreground: #ffffff;
   }
+
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-  ::selection {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: hsl(var(--foreground));
+    background-color: var(--background);
+    color: var(--foreground);
+    min-height: 100vh;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto !important;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Tiptap editor styling for clean Notion/Evernote typography */
+.tiptap {
+  outline: none !important;
+  min-height: 380px;
+  color: #0f172a; /* Default body text color inside editor */
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.tiptap p.is-editor-empty:first-child::before {
+  color: #9ca3af;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
 
+.tiptap pre {
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
 
+.tiptap blockquote {
+  border-left: 3px solid #6366f1;
+  padding-left: 1rem;
+  margin-left: 0;
+  font-style: italic;
+  color: #4b5563;
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+
+.tiptap h1 {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #0f172a; /* Dark text for light background */
+}
+
+.tiptap h2 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  margin-top: 0.875rem;
+  margin-bottom: 0.375rem;
+  color: #1e293b; /* Dark text for light background */
+}
+
+.tiptap h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  color: #334155; /* Dark text for light background */
+}
+
+.tiptap hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.5rem 0;
+}
+
+/* Task list styles */
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.tiptap ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  user-select: none;
+  margin-top: 0.25rem;
+}
+
+.tiptap ul[data-type="taskList"] li > label input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #4f46e5;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+}
+
+.tiptap ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+/* Table styles */
+.tiptap table {
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.tiptap table td,
+.tiptap table th {
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 0.6rem 0.85rem;
+  position: relative;
+  vertical-align: top;
+}
+
+.tiptap table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+  color: #0f172a;
+}
+
+/* Image styles */
+.tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+/* Callout styles */
+.tiptap div[data-type="callout"] {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin: 1.25rem 0;
+  background-color: #fefce8;
+  border: 1px solid #fef08a;
+  border-left: 4px solid #f59e0b;
+  border-radius: 0.75rem;
+  color: #713f12;
+}
+
+.tiptap div[data-type="callout"] .callout-icon {
+  user-select: none;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.tiptap div[data-type="callout"] .callout-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tiptap div[data-type="callout"] .callout-content > *:first-child {
+  margin-top: 0;
+}
+
+.tiptap div[data-type="callout"] .callout-content > *:last-child {
+  margin-bottom: 0;
+}

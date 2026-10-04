@@ -85,11 +85,11 @@ export function ProblemSection() {
               </span>
             </div>
 
-            {/* Right: The Nimbus Resolution */}
+            {/* Right: The livo Resolution */}
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
                 <span className="text-xs sm:text-[13px] font-mono uppercase text-sky-400 tracking-wider font-semibold">
-                  The Nimbus Knowledge Layer
+                  The livo Knowledge Layer
                 </span>
                 <span className="text-xs font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-800/50 px-2 py-0.5 rounded">
                   Hybrid Search + RAG
