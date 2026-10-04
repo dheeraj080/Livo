@@ -395,23 +395,7 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* System Infrastructure Health Indicator */}
-      <div className="p-3 border-t border-stone-800 bg-stone-950/40">
-        <button
-          id="sidebar-health-status-btn"
-          type="button"
-          onClick={onOpenHealth}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-stone-800/60 hover:bg-stone-800 text-stone-300 text-xs transition-colors group"
-        >
-          <div className="flex items-center gap-2">
-            <Activity className="w-3.5 h-3.5 text-indigo-400 group-hover:animate-pulse" />
-            <span className="font-medium text-[11px]">System Status</span>
-          </div>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-800/40 font-mono">
-            Online
-          </span>
-        </button>
-      </div>
+      
     </aside>
   );
 }
